@@ -1,61 +1,112 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
-      integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh"
-      crossorigin="anonymous"
-    />
-    <link
-      rel="stylesheet"
-      href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
-      crossorigin="anonymous"
-    />
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>{% block title %}Home{% endblock %}</title>
+  <style>
+    body {
+      background-color: rgb(95, 193, 196);
+      display: flex; /* Enable flexbox layout */
+      min-height: 100vh; /* Set minimum body height for full viewport */
+      flex-direction: column; /* Stack content vertically */
+      font-family: Arial, sans-serif; /* Set font family to Arial */
+    }
 
-    <title>{% block title %}Home{% endblock %}</title>
-  </head>
-  <body>
-    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-      <button
-        class="navbar-toggler"
-        type="button"
-        data-toggle="collapse"
-        data-target="#navbar"
-      >
-        <span class="navbar-toggler-icon"></span>
-      </button>
-      <div class="collapse navbar-collapse" id="navbar">
-        <div class="navbar-nav"> 
-          {% if user.is_authenticated %}
-          <a class="nav-item nav-link" id="home" href="/">Home</a>
-          <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
-          {% else %}
-          <a class="nav-item nav-link" id="login" href="/login">Login</a>
-          <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
-          {% endif %}
-        </div>
-      </div>
-    </nav>
+    .container {
+      flex: 1; /* Allow content area to grow */
+      text-align: center; /* Center text and buttons within the content area */
+      padding: 150px; /* Add some padding for visual spacing */
+    }
 
-    {% with messages = get_flashed_messages(with_categories=true) %} {% if messages %} {% for category, message in messages %} {% if category =='error' %}
-      <div class="alert alert-danger alter-dismissable fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% else %}
-      <div class="alert alert-success alter-dismissable fade show" role="alert">
-        {{ message }}
-        <button type="button" class="close" data-dismiss="alert">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      {% endif %} {% endfor %} {% endif %} {% endwith %}
+    .sidebar-buttons {
+      /* New class for buttons */
+      position: fixed; /* Fix buttons to the top */
+      top: 20px; /* Add space from the top */
+      left: 20px; /* Add space from the left */
+      display: flex; /* Enable flexbox layout for buttons */
+      align-items: center; /* Align buttons vertically */
+    }
 
-    <div class="container">{% block content %}{%  endblock %}</div>
-  </body>
+    .sidebar-buttons a,
+    .btn-primary {
+      /* Style for sidebar buttons and login button */
+      margin-right: 10px; /* Add space between buttons */
+      padding: 5px 10px; /* Add padding for visual spacing */
+      border: 1px solid rgb(255, 255, 255); /* Add a border for better visibility */
+      background-color: transparent; /* Remove background color */
+      color: rgb(255, 250, 250); /* Set button text color */
+      text-decoration: none; /* Remove default underline */
+      cursor: pointer; /* Set cursor to pointer on hover */
+    }
+
+    .logo {
+      position: absolute; /* Make logo position absolute */
+      top: 0; /* Place at the top of the head section */
+      left: 50%; /* Center logo horizontally */
+      transform: translateX(-50%); /* Adjust horizontal placement */
+      padding: 10px; /* Adjust logo height as desired */
+      width: 150px; /* Adjust logo width as desired */
+      height: 100px;
+    }
+
+    .form-group {
+      margin-bottom: 15px; /* Add some space between input fields */
+    }
+
+    .form-control {
+      display: block; /* Make input fields take up full width */
+      width: 100%; /* Set input field width to 100% */
+      padding: 10px; /* Add padding for visual spacing */
+      border: 1px solid #ccc; /* Add a border */
+      border-radius: 4px; /* Add rounded corners */
+      font-family: inherit; /* Inherit font family from body */
+    }
+
+    .form-label {
+      display: block; /* Display labels on their own lines */
+      margin-bottom: 5px; /* Add some space after labels */
+    }
+
+    .error-message {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background-color: rgb(169, 169, 169);
+      color: white;
+      padding: 10px;
+      border-radius: 5px;
+      z-index: 10; /* Ensure message appears above other content */
+    }
+
+  </style>
+
+<img src="../static/PAT_LOGO.png" alt="My Website Logo" class="logo">
+
+</head>
+<body>
+  <div class="sidebar-buttons"> {% if user.is_authenticated %}
+      <a class="nav-item nav-link" id="home" href="/">Home</a>
+      <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
+    {% else %}
+      <a class="nav-item nav-link" id="login" href="/login">Login</a>
+      <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
+    {% endif %}
+  </div>
+
+  <div class="container">
+    {% block content %}{% endblock %}
+  </div>
+
+  <div id="error-message" class="error-message"></div>
+
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <script>
+      const errorMessage = document.getElementById("error-message");
+      errorMessage.textContent = "{{ messages.0.1 }}"; // Assuming first message
+    </script>
+  {% endif %}
+{% endwith %}
+</body>
 </html>
