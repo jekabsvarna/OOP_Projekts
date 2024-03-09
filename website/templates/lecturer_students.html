@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Student List</title>
+    <!-- Add references to CSS files here if needed -->
+</head>
+<body>
+    <h1>Sudent List</h1>
+    <div>
+        <ul>
+            {% for Student in Students %}
+                <li>{{ Student.first_name }} - {{ Student.email }}</li>
+            {% else %}
+                <li>No Students found.</li>
+            {% endfor %}
+        </ul>
+    </div>
+    <a href="/lecturer">Back to Admin Dashboard</a>
+</body>
+</html>

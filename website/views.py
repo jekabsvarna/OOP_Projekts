@@ -78,3 +78,13 @@ def add_lecturer():
     else:
         flash("You are not authorized to perform this action.", category='error')
         return redirect(url_for('views.home'))
+    
+
+@views.route('/lecturer/students')
+@login_required
+def lecturer_students():
+    if current_user.role != 'lecturer':  # Assuming 'role' attribute exists and is 'lecturer' for lecturers
+        flash('You do not have access to this page.', category='error')
+        return redirect(url_for('views.home'))
+    students = User.query.all()
+    return render_template('lecturer_students.html', students=students)
