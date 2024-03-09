@@ -6,6 +6,8 @@ from fetchLecturers import get_lecturers
 from fetchStudents import get_students
 from werkzeug.security import generate_password_hash
 from . import db
+import csv
+import io
 
 
 views = Blueprint('views', __name__)
@@ -93,3 +95,35 @@ def lecturer_students():
         return redirect(url_for('views.home'))
     students = User.query.all()
     return render_template('lecturer_students.html', students=students)
+
+
+
+# Student list import from .csv file
+
+@views.route('/import_students', methods=['GET', 'POST'])
+@login_required
+def import_students():
+    if request.method == 'POST':
+        # Check if there is a file in the request
+        if 'students_csv' not in request.files:
+            flash('No file part', category='error')
+            return redirect(request.url)
+        file = request.files['students_csv']
+        # If the user does not select a file, browser submits an empty part without filename
+        if file.filename == '':
+            flash('No selected file', category='error')
+            return redirect(request.url)
+        if file and file.filename.endswith('.csv'):
+            stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
+            csv_input = csv.DictReader(stream)
+            for row in csv_input:
+                # Here you would add your logic to process each row; this is just an example
+                new_student = User(email=row['email'], password=row['password'], first_name=row['first_name'], role='student')
+                db.session.add(new_student)
+            db.session.commit()
+            flash('Students imported successfully!', category='success')
+            return redirect(url_for('views.home_admin'))  # Or wherever you want to redirect
+        else:
+            flash('Invalid file format', category='error')
+    return render_template('import_students.html')
+
