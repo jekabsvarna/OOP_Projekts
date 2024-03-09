@@ -3,8 +3,17 @@ from .models import User
 import hashlib
 from. import db
 from flask_login import login_user, login_required, logout_user, current_user
+from flask_migrate import Migrate
 
 auth = Blueprint('auth', __name__)
+
+# Example function to add a user (simplified for illustration)
+def register_user(email, password, first_name, role='lecturer'):  # Add role parameter
+    new_user = User(email=email, password=password, first_name=first_name, role=role)
+    db.session.add(new_user)
+    db.session.commit()
+
+
 
 @auth.route('/login', methods=['GET', 'POST'])
 def login():
@@ -14,15 +23,16 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if user:
-            if user.password == password:
+            if user.password == password:  # In a real application, ensure password is securely hashed and checked
                 flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
                 
-                if user.email == "admin@rtu.lv":  # Check for admin email
+                # Check for user role instead of email
+                if user.role == "admin":  # Adjust the role string as necessary
                     return redirect(url_for('views.home_admin'))
-                elif email.endswith("@rtu.lv") and email != "admin@rtu.lv":  # Check for lecturer email (excluding admin)
+                elif user.role == "lecturer":  # Adjust the role string as necessary
                     return redirect(url_for('views.home_lecturer'))  # Redirect to lecturer page
-                else:  # Regular user
+                else:  # Default redirection for other roles or if no role is set
                     return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again.', category='error')
