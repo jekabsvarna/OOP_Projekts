@@ -15,11 +15,11 @@
               </tr>
           </thead>
           <tbody>
-              {% for Student in Students %}
+              {% for student in students %}
               <tr>
-                  <td>{{ Student.first_name }}</td>
-                  <td>{{ Student.email }}</td>
-                  <td>{{ Student.role }}</td>
+                  <td>{{ student.first_name }}</td>
+                  <td>{{ student.email }}</td>
+                  <td>{{ student.role }}</td>
               </tr>
               {% else %}
               <tr>

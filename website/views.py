@@ -3,6 +3,7 @@ from flask_login import login_required, current_user
 from .models import User
 from . import views
 from fetchLecturers import get_lecturers
+from fetchStudents import get_students
 from werkzeug.security import generate_password_hash
 from . import db
 
@@ -27,7 +28,11 @@ def home_admin():
 @login_required
 def home_lecturer():
     if current_user.email.endswith("@rtu.lv") and current_user.email != "admin@rtu.lv":  # Check if user is admin
-        return render_template("home_lecturer.html", user=current_user)
+        db_path = 'instance/database.db'  
+        students = get_students(db_path)
+        students_list = [{'id': id, 'email': email, 'first_name': first_name, 'role': role} 
+                          for id, email, first_name, role in students]
+        return render_template("home_lecturer.html", user=current_user, students=students_list)
     else:
         flash("You are not authorized to access this page.", category="error")
         return redirect(url_for("views.home"))  # Redirect to regular home
@@ -79,7 +84,7 @@ def add_lecturer():
         flash("You are not authorized to perform this action.", category='error')
         return redirect(url_for('views.home'))
     
-
+# Pasniedzejam skatities studentu sarakstu
 @views.route('/lecturer/students')
 @login_required
 def lecturer_students():
