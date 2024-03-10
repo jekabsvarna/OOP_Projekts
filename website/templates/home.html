@@ -16,7 +16,9 @@
                         <img src="../static/finger_up.png" alt="Article Available" />
                     {% endif %}
                 </span>
-                <span class="article-name">{{ article.name }}</span>
+                <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                    {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+                </span>
             </li>
         {% else %}
             <li>No articles found.</li>
@@ -44,6 +46,9 @@
                     // Store the taken article ID and owner ID in local storage or as a cookie
                     localStorage.setItem(`article_${articleId}`, "{{ current_user.id }}");
                     localStorage.setItem(`owner_${articleId}`, "{{ current_user.id }}");
+                    // Add 'Your article' text next to the article name
+                    this.querySelector(".article-name").innerText += " (Your article)";
+                    this.querySelector(".article-name").classList.add("your-article");
                 } else {
                     // Check if the current user is the one who originally took the article
                     if (owner === "{{ current_user.id }}") {
@@ -57,6 +62,9 @@
                         // Remove the taken article ID and owner ID from local storage
                         localStorage.removeItem(`article_${articleId}`);
                         localStorage.removeItem(`owner_${articleId}`);
+                        // Remove 'Your article' text next to the article name
+                        this.querySelector(".article-name").innerText = this.querySelector(".article-name").innerText.replace(" (Your article)", "");
+                        this.querySelector(".article-name").classList.remove("your-article");
                     } else {
                         // Inform the user that they cannot untake an article taken by someone else
                         alert("You cannot untake an article taken by someone else.");
@@ -75,6 +83,10 @@
                     img.src = "../static/finger_side.png";
                     articleElement.setAttribute("data-status", "taken");
                     articleElement.setAttribute("data-owner", localStorage.getItem(`owner_${articleId}`));
+                    if (localStorage.getItem(`owner_${articleId}`) === "{{ current_user.id }}") {
+                        articleElement.querySelector(".article-name").innerText += " (Your article)";
+                        articleElement.querySelector(".article-name").classList.add("your-article");
+                    }
                 }
             }
         });
