@@ -11,7 +11,7 @@
             <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
                 <span class="article-status">
                     {% if article.taken %}
-                        <img src="../static/finger_side_taken.png" alt="Article Taken" />
+                        <img src="../static/finger_side.png" alt="Article Taken" />
                     {% else %}
                         <img src="../static/finger_up.png" alt="Article Available" />
                     {% endif %}
