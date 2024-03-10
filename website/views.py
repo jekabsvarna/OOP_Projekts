@@ -1,14 +1,13 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request
 from flask_login import login_required, current_user
-from .models import User
-from . import views
+from .models import User, Article
 from fetchLecturers import get_lecturers
 from fetchStudents import get_students
+from fetchArticles import get_articles
 from werkzeug.security import generate_password_hash
 from . import db
-import csv
-import io
-
+from flask import request
+import openpyxl
 
 views = Blueprint('views', __name__)
 
@@ -42,15 +41,10 @@ def home_lecturer():
 @views.route('/')
 @login_required
 def home():
-    return render_template("home.html", user=current_user)
+    db_path = 'instance/database.db'  # Update with your database path
+    articles = Article.query.all()  # Fetch articles from the database
+    return render_template("home.html", user=current_user, articles=articles)
 
-@views.route('/admin/lecturers')
-@login_required
-def admin_lecturers():
-    if current_user.role != 'admin':
-        return "Access denied", 403  # Or handle as appropriate
-    lecturers = User.query.filter_by(role='lecturer').all()
-    return render_template("admin_lecturers.html", lecturers=lecturers)
 
 @views.route('/add_lecturer', methods=['GET', 'POST'])
 @login_required
@@ -85,45 +79,132 @@ def add_lecturer():
     else:
         flash("You are not authorized to perform this action.", category='error')
         return redirect(url_for('views.home'))
-    
-# Pasniedzejam skatities studentu sarakstu
-@views.route('/lecturer/students')
-@login_required
-def lecturer_students():
-    if current_user.role != 'lecturer':  # Assuming 'role' attribute exists and is 'lecturer' for lecturers
-        flash('You do not have access to this page.', category='error')
-        return redirect(url_for('views.home'))
-    students = User.query.all()
-    return render_template('lecturer_students.html', students=students)
 
-
-
-# Student list import from .csv file
-
-@views.route('/import_students', methods=['GET', 'POST'])
+# Student list import from .xlsx file
+@views.route('/import_students', methods=['POST'])
 @login_required
 def import_students():
-    if request.method == 'POST':
-        # Check if there is a file in the request
-        if 'students_csv' not in request.files:
-            flash('No file part', category='error')
-            return redirect(request.url)
-        file = request.files['students_csv']
-        # If the user does not select a file, browser submits an empty part without filename
-        if file.filename == '':
-            flash('No selected file', category='error')
-            return redirect(request.url)
-        if file and file.filename.endswith('.csv'):
-            stream = io.StringIO(file.stream.read().decode("UTF8"), newline=None)
-            csv_input = csv.DictReader(stream)
-            for row in csv_input:
-                # Here you would add your logic to process each row; this is just an example
-                new_student = User(email=row['email'], password=row['password'], first_name=row['first_name'], role='student')
-                db.session.add(new_student)
-            db.session.commit()
+    if 'students_xlsx' not in request.files:
+        flash('No file part', category='error')
+        return redirect(request.url)
+    
+    file = request.files['students_xlsx']
+    
+    if file.filename == '':
+        flash('No selected file', category='error')
+        return redirect(request.url)
+    
+    if file and allowed_file(file.filename):
+        try:
+            students_data = read_students_xlsx(file)
+            save_students_to_database(students_data)
             flash('Students imported successfully!', category='success')
-            return redirect(url_for('views.home_admin'))  # Or wherever you want to redirect
-        else:
-            flash('Invalid file format', category='error')
-    return render_template('import_students.html')
+        except Exception as e:
+            flash(f'Error importing students: {str(e)}', category='error')
+    else:
+        flash('Invalid file format', category='error')
+    
+    return redirect(url_for('views.home_lecturer'))
 
+
+def read_students_xlsx(file):
+    students_data = []
+    try:
+        wb = openpyxl.load_workbook(file)
+        sheet = wb.active
+        for row in sheet.iter_rows(values_only=True):
+            if len(row) >= 3:  # Ensure the row has at least the required data
+                email = row[2] if row[2] else ''
+                first_name = row[0] if row[0] else ''
+                last_name = row[1] if row[1] else ''
+                students_data.append({'email': email, 'first_name': first_name, 'last_name': last_name, 'role': 'student'})
+            else:
+                raise ValueError('Insufficient values in the row')
+        return students_data
+    except Exception as e:
+        raise e
+
+def save_students_to_database(students_data):
+    try:
+        for student in students_data:
+            # Check if the email already exists in the database
+            existing_student = User.query.filter_by(email=student['email']).first()
+            if existing_student:
+                flash(f'Student with email {student["email"]} already exists.', category='error')
+                continue
+
+            # Concatenate first_name and last_name from the xlsx file
+            full_name = f"{student['first_name']} {student['last_name']}"
+            # Set a standard password for each student
+            password1 = "securepassword"
+            new_student = User(email=student['email'], 
+                               first_name=full_name, 
+                               password=password1,
+                               role=student['role'])
+            db.session.add(new_student)
+        db.session.commit()
+        flash('Students imported successfully!', category='success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error importing students: {str(e)}', category='error')
+        raise e
+
+#Article import from .xlsx file
+@views.route('/upload_articles', methods=['POST'])
+def upload_articles():
+    if 'articles_xlsx' not in request.files:
+        flash('No file part', category='error')
+        return redirect(request.url)
+    
+    file = request.files['articles_xlsx']
+    
+    if file.filename == '':
+        flash('No selected file', category='error')
+        return redirect(request.url)
+    
+    if file and allowed_file(file.filename):
+        article_names = read_xlsx_file(file)
+        if article_names:
+            save_article_names_to_database(article_names)
+            flash('Article names uploaded successfully!', category='success')
+        else:
+            flash('Failed to read article names from file.', category='error')
+    else:
+        flash('Invalid file format', category='error')
+    
+    return redirect(url_for('views.home_lecturer'))
+
+
+def read_xlsx_file(file):
+    article_names = []
+    try:
+        wb = openpyxl.load_workbook(file)
+        sheet = wb.active
+        for row in sheet.iter_rows(values_only=True):
+            article_names.append(row[0])
+        return article_names
+    except Exception as e:
+        print(f"Error reading XLSX file: {e}")
+        return None
+
+def save_article_names_to_database(article_names):
+    try:
+        for name in article_names:
+            # Check if the article name already exists in the database
+            existing_article = Article.query.filter_by(name=name).first()
+            if existing_article:
+                flash(f'Article with name "{name}" already exists.', category='error')
+                continue
+
+            new_article = Article(name=name)
+            db.session.add(new_article)
+        db.session.commit()
+        flash('Article names uploaded successfully!', category='success')
+    except Exception as e:
+        db.session.rollback()
+        flash(f'Error saving article names to database: {e}', category='error')
+        raise e
+
+def allowed_file(filename):
+    ALLOWED_EXTENSIONS = {'xlsx'}
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS

@@ -31,37 +31,22 @@
   </div>
  
 
-  <!-- start of drag&drop .csv file upload-->
-
-
-  
   <div class="upload-container">
     <h2>Import Students</h2>
-    <form action="{{ url_for('views.import_students') }}" method="post" enctype="multipart/form-data" class="upload-form">
-        <div class="drag-drop-area">
-            <p>Drag and drop a file or click to select a file</p>
-            <input type="file" name="students_csv" accept=".csv" hidden>
-        </div>
+    <form action="{{ url_for('views.import_students') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="students_xlsx" accept=".xlsx">
         <button type="submit" class="btn btn-primary">Import</button>
+    </form>    
+</div>
+
+<div class="upload-container">
+    <h2>Upload Articles</h2>
+    <form action="{{ url_for('views.upload_articles') }}" method="post" enctype="multipart/form-data">
+        <input type="file" name="articles_xlsx" accept=".xlsx">
+        <button type="submit" class="btn btn-primary">Upload</button>
     </form>
 </div>
-<script>
-    const dropArea = document.querySelector('.drag-drop-area');
-    const fileInput = dropArea.querySelector('input[type=file]');
-    dropArea.addEventListener('click', () => fileInput.click());
-    dropArea.addEventListener('dragover', (event) => {
-        event.preventDefault();
-        dropArea.classList.add('active');
-    });
-    dropArea.addEventListener('dragleave', () => {
-        dropArea.classList.remove('active');
-    });
-    dropArea.addEventListener('drop', (event) => {
-        event.preventDefault();
-        fileInput.files = event.dataTransfer.files;
-        dropArea.classList.remove('active');
-    });
-</script>
+
 
   <!-- <a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary">Add Lecturer</a> -->
       {%  endblock %}

@@ -1,7 +1,30 @@
-{% extends "base.html" %} {% block title %}Home{% endblock %} 
-    
+{% extends "base.html" %} 
+{% block title %}Home{% endblock %} 
+
 {% block content %}
 
 <h1>This is the home page</h1>
 
-      {%  endblock %}
+<div class="articles-list">
+      <h2>Articles</h2>
+      <table>
+          <thead>
+              <tr>
+                  <th>Name</th>
+              </tr>
+          </thead>
+          <tbody>
+              {% for article in articles %}
+              <tr>
+                  <td>{{ article.name }}</td>
+              </tr>
+              {% else %}
+              <tr>
+                  <td colspan="3">No articles found.</td>
+              </tr>
+              {% endfor %}
+          </tbody>
+      </table>
+  </div>
+
+{%  endblock %}
