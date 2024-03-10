@@ -1,4 +1,4 @@
-from flask import Blueprint, render_template, flash, redirect, url_for, request
+from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from .models import User, Article
 from fetchLecturers import get_lecturers
@@ -208,3 +208,26 @@ def save_article_names_to_database(article_names):
 def allowed_file(filename):
     ALLOWED_EXTENSIONS = {'xlsx'}
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
+@views.route('/untake_article', methods=['POST'])
+@login_required
+def untake_article():
+    article_id = request.form.get('article_id')
+
+    # Query the article from the database
+    article = Article.query.get(article_id)
+
+    if not article:
+        return jsonify({'success': False, 'message': 'Article not found.'}), 404
+
+    # Check if the current user is the owner of the article
+    if article.owner_id != current_user.id:
+        return jsonify({'success': False, 'message': 'You are not authorized to untake this article.'}), 403
+
+    # Update the article status and owner in the database
+    article.taken = False
+    article.owner_id = None
+    db.session.commit()
+
+    return jsonify({'success': True, 'message': 'Article untaken successfully.'}), 200
+

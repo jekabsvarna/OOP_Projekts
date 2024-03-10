@@ -2,29 +2,83 @@
 {% block title %}Home{% endblock %} 
 
 {% block content %}
-
 <h1>This is the home page</h1>
 
 <div class="articles-list">
-      <h2>Articles</h2>
-      <table>
-          <thead>
-              <tr>
-                  <th>Name</th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for article in articles %}
-              <tr>
-                  <td>{{ article.name }}</td>
-              </tr>
-              {% else %}
-              <tr>
-                  <td colspan="3">No articles found.</td>
-              </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-  </div>
+    <h2>Articles</h2>
+    <ul id="articles">
+        {% for article in articles %}
+            <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+                <span class="article-status">
+                    {% if article.taken %}
+                        <img src="../static/finger_side_taken.png" alt="Article Taken" />
+                    {% else %}
+                        <img src="../static/finger_up.png" alt="Article Available" />
+                    {% endif %}
+                </span>
+                <span class="article-name">{{ article.name }}</span>
+            </li>
+        {% else %}
+            <li>No articles found.</li>
+        {% endfor %}
+    </ul>
+</div>
 
-{%  endblock %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const articles = document.querySelectorAll(".articles-list li");
+        articles.forEach(article => {
+            article.addEventListener("click", function() {
+                const articleId = this.getAttribute("data-article-id");
+                const status = this.getAttribute("data-status");
+                const owner = this.getAttribute("data-owner");
+
+                if (status === "available") {
+                    // Send an AJAX request to mark the article as taken by the current user
+                    // Update the UI accordingly based on the response
+                    // For now, we'll simulate the update by changing the image source
+                    const img = this.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    this.setAttribute("data-status", "taken");
+                    this.setAttribute("data-owner", "{{ current_user.id }}");
+                    // Store the taken article ID and owner ID in local storage or as a cookie
+                    localStorage.setItem(`article_${articleId}`, "{{ current_user.id }}");
+                    localStorage.setItem(`owner_${articleId}`, "{{ current_user.id }}");
+                } else {
+                    // Check if the current user is the one who originally took the article
+                    if (owner === "{{ current_user.id }}") {
+                        // Send an AJAX request to mark the article as available again
+                        // Update the UI accordingly based on the response
+                        // For now, we'll simulate the update by changing the image source
+                        const img = this.querySelector(".article-status img");
+                        img.src = "../static/finger_up.png";
+                        this.setAttribute("data-status", "available");
+                        this.setAttribute("data-owner", "");
+                        // Remove the taken article ID and owner ID from local storage
+                        localStorage.removeItem(`article_${articleId}`);
+                        localStorage.removeItem(`owner_${articleId}`);
+                    } else {
+                        // Inform the user that they cannot untake an article taken by someone else
+                        alert("You cannot untake an article taken by someone else.");
+                    }
+                }
+            });
+        });
+
+        // Check local storage for previously taken articles and update the UI
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("article_")) {
+                const articleId = key.split("_")[1];
+                const articleElement = document.getElementById(`article-${articleId}`);
+                if (articleElement) {
+                    const img = articleElement.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    articleElement.setAttribute("data-status", "taken");
+                    articleElement.setAttribute("data-owner", localStorage.getItem(`owner_${articleId}`));
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}
