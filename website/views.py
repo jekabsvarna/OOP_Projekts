@@ -9,20 +9,39 @@ from . import db
 from flask import request
 import openpyxl
 
+from math import ceil
+from fetchLecturers import get_total_lecturers_count
+
 views = Blueprint('views', __name__)
 
 @views.route('/home_admin')
 @login_required
 def home_admin():
     if current_user.role == 'admin':
-        db_path = 'instance/database.db'  
-        lecturers = get_lecturers(db_path)
-        lecturers_list = [{'id': id, 'email': email, 'first_name': first_name, 'role': role} 
-                          for id, email, first_name, role in lecturers]
-        return render_template("home_admin.html", user=current_user, lecturers=lecturers_list)
+        # Defining the DB path
+        db_path = 'instance/database.db'
+
+        # Pagination settings
+        num_lecturers_per_page = request.args.get('num_lecturers', 10, type=int)
+        page = request.args.get('page', 1, type=int)
+
+        # Total lecturers count and pagination calculations
+        total_lecturers = get_total_lecturers_count(db_path)  # You'll need to implement this function
+        total_pages = ceil(total_lecturers / num_lecturers_per_page)
+        offset = (page - 1) * num_lecturers_per_page
+
+        # Fetch lecturers with limit and offset for pagination #='instance/database.db'
+        lecturers = get_lecturers(db_path, limit=num_lecturers_per_page, offset=offset)
+        lecturers_list = [{'id': l[0], 'email': l[1], 'first_name': l[2], 'role': l[3]} for l in lecturers]
+
+        prev_url = url_for('views.home_admin', num_lecturers=num_lecturers_per_page, page=page-1) if page > 1 else None
+        next_url = url_for('views.home_admin', num_lecturers=num_lecturers_per_page, page=page+1) if page < total_pages else None
+
+        return render_template("home_admin.html", user=current_user, lecturers=lecturers_list, prev_url=prev_url, next_url=next_url)
     else:
         flash("You are not authorized to access this page.", category="error")
         return redirect(url_for("views.home"))
+    
     
     
 @views.route('/home_lecturer')

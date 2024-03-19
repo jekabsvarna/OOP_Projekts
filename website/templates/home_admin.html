@@ -5,6 +5,17 @@
 {% block content %}
 <h1>This is the admin home page</h1>
 
+<!-- Dropdown for selecting number of lecturers -->
+<form method="GET">
+    <label for="num_lecturers">Lecturers per page:</label>
+    <select name="num_lecturers" id="num_lecturers" onchange="this.form.submit()">
+        <option value="5" {% if request.args.get('num_lecturers') == '5' %} selected {% endif %}>5</option>
+        <option value="10" {% if request.args.get('num_lecturers') == '10' %} selected {% endif %}>10</option>
+        <option value="20" {% if request.args.get('num_lecturers') == '20' %} selected {% endif %}>20</option>
+        <option value="30" {% if request.args.get('num_lecturers') == '30' %} selected {% endif %}>30</option>
+    </select>
+</form>
+
 <!-- Lecturers List -->
 <div class="lecturers-list">
     <h2>Lecturers</h2>
@@ -31,5 +42,16 @@
         </tbody>
     </table>
 </div>
+
+<!-- Pagination Links -->
+<div class="pagination">
+    {% if prev_url %}
+    <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}" class="btn btn-primary">Next Page &raquo;</a>
+    {% endif %}
+</div>
+
 <a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary">Add Lecturer</a>
 {% endblock %}
