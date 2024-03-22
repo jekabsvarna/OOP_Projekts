@@ -1,0 +1,111 @@
+{% extends "base.html" %} 
+{% block title %}User Articles{% endblock %} 
+
+{% block content %}
+
+<div class="articles-list">
+    <h2>Available Articles</h2>
+    <ul id="articles">
+        {% for article in articles %}
+            <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+                <span class="article-status">
+                    {% if article.taken %}
+                        <img src="../static/finger_side.png" alt="Article Taken" />
+                    {% else %}
+                        <img src="../static/finger_up.png" alt="Article Available" />
+                    {% endif %}
+                </span>
+                <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                    {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const articles = document.querySelectorAll(".articles-list li");
+        const maxArticlesPerUser = 2;
+
+        articles.forEach(article => {
+            article.addEventListener("click", function() {
+                const articleId = this.getAttribute("data-article-id");
+                const status = this.getAttribute("data-status");
+                const owner = this.getAttribute("data-owner");
+
+                if (status === "available" && countUserArticles() < maxArticlesPerUser) {
+                    const img = this.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    this.setAttribute("data-status", "taken");
+                    this.setAttribute("data-owner", "{{ current_user.id }}");
+                    localStorage.setItem(`article_${articleId}`, "{{ current_user.id }}");
+                    localStorage.setItem(`owner_${articleId}`, "{{ current_user.id }}");
+                    this.querySelector(".article-name").innerText += " (Your article)";
+                    this.querySelector(".article-name").classList.add("your-article");
+                    moveArticleToTop(this);
+                } else if (owner === "{{ current_user.id }}") {
+                    const img = this.querySelector(".article-status img");
+                    img.src = "../static/finger_up.png";
+                    this.setAttribute("data-status", "available");
+                    this.setAttribute("data-owner", "");
+                    localStorage.removeItem(`article_${articleId}`);
+                    localStorage.removeItem(`owner_${articleId}`);
+                    this.querySelector(".article-name").innerText = this.querySelector(".article-name").innerText.replace(" (Your article)", "");
+                    this.querySelector(".article-name").classList.remove("your-article");
+                    moveArticleToOriginalPosition(this);
+                } else {
+                    alert("You cannot take more than two articles or an article taken by someone else.");
+                }
+            });
+        });
+
+        function countUserArticles() {
+            let count = 0;
+            articles.forEach(article => {
+                if (article.getAttribute("data-owner") === "{{ current_user.id }}") {
+                    count++;
+                }
+            });
+            return count;
+        }
+
+        function moveArticleToTop(article) {
+            const articlesList = document.getElementById("articles");
+            articlesList.prepend(article);
+        }
+
+        function moveArticleToOriginalPosition(article) {
+            const articleId = article.getAttribute("data-article-id");
+            const originalIndex = parseInt(articleId) - 1;
+            const articlesList = document.getElementById("articles");
+            const articles = articlesList.children;
+
+            // Find the element that should be before the unselected article
+            const referenceNode = articles[originalIndex];
+
+            // Insert the unselected article before the reference node
+            articlesList.insertBefore(article, referenceNode.nextSibling);
+        }
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("article_")) {
+                const articleId = key.split("_")[1];
+                const articleElement = document.getElementById(`article-${articleId}`);
+                if (articleElement) {
+                    const img = articleElement.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    articleElement.setAttribute("data-status", "taken");
+                    articleElement.setAttribute("data-owner", localStorage.getItem(`owner_${articleId}`));
+                    if (localStorage.getItem(`owner_${articleId}`) === "{{ current_user.id }}") {
+                        articleElement.querySelector(".article-name").innerText += " (Your article)";
+                        articleElement.querySelector(".article-name").classList.add("your-article");
+                        moveArticleToTop(articleElement);
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

@@ -64,6 +64,13 @@ def home():
     articles = Article.query.all()  # Fetch articles from the database
     return render_template("home.html", user=current_user, articles=articles)
 
+@views.route('/home_user_articles')
+@login_required
+def home_user_articles():
+    db_path = 'instance/database.db'  # Update with your database path
+    articles = Article.query.all()  # Fetch articles from the database
+    return render_template("home_user_articles.html", user=current_user, articles=articles)
+
 
 @views.route('/add_lecturer', methods=['GET', 'POST'])
 @login_required
