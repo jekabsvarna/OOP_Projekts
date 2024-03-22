@@ -250,3 +250,4 @@ def untake_article():
 
     return jsonify({'success': True, 'message': 'Article untaken successfully.'}), 200
 
+

@@ -97,9 +97,9 @@
     margin-right: 10px; /* Add space between icon and article name */
     }
 
-    .articles-list .article-name {
-    margin-right: 10px; /* Add space between icon and article name */
-    }
+    .articles-list .second-article {
+    align-self: flex-start; /* Align the second article to the left */
+  }
 
     .your-article {
     color: white;
@@ -111,21 +111,22 @@
 <img src="../static/PAT_LOGO.png" alt="My Website Logo" class="logo">
 
 </head>
-<body>
-  <div class="sidebar-buttons"> {% if user.is_authenticated %}
+<div class="sidebar-buttons">
+  {% if user.is_authenticated %}
     {% if user.role == 'admin' %}
       <a class="nav-item nav-link" id="home" href="/home_admin">Home</a>
     {% elif user.role == 'lecturer' %}
       <a class="nav-item nav-link" id="home" href="/home_lecturer">Home</a>
     {% else %}
-    <a class="nav-item nav-link" id="home" href="/">Home</a>
+      <a class="nav-item nav-link" id="home" href="/">Home</a>
     {% endif %}
     <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
   {% else %}
     <a class="nav-item nav-link" id="login" href="/login">Login</a>
     <a class="nav-item nav-link" id="signUp" href="/sign-up">Sign Up</a>
   {% endif %}
-  </div>
+</div>
+
 
   <div class="container">
     {% block content %}{% endblock %}
