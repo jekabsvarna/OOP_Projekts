@@ -56,6 +56,28 @@ def home_lecturer():
     else:
         flash("You are not authorized to access this page.", category="error")
         return redirect(url_for("views.home"))  # Redirect to regular home
+    
+@views.route('/home_lecturer_students')
+@login_required
+def home_lecturer_students():
+    if current_user.role == 'lecturer':
+        db_path = 'instance/database.db'  
+        students = get_students(db_path)
+        students_list = [{'id': id, 'email': email, 'first_name': first_name, 'role': role} 
+                          for id, email, first_name, role in students]
+        return render_template("home_lecturer_students.html", user=current_user, students=students_list)
+    else:
+        flash("You are not authorized to access this page.", category="error")
+        return redirect(url_for("views.home"))  # Redirect to regular home
+
+@views.route('/home_lecturer_articles')
+@login_required
+def home_lecturer_articles():
+    db_path = 'instance/database.db'  # Update with your database path
+    articles = Article.query.all()  # Fetch articles from the database
+    current_user_id = current_user.id  # Get the current user's ID
+    return render_template("home_lecturer_articles.html", user=current_user, articles=articles, current_user_id=current_user_id)
+
 
 @views.route('/')
 @login_required
@@ -70,7 +92,6 @@ def home_user_articles():
     db_path = 'instance/database.db'  # Update with your database path
     articles = Article.query.all()  # Fetch articles from the database
     return render_template("home_user_articles.html", user=current_user, articles=articles)
-
 
 @views.route('/add_lecturer', methods=['GET', 'POST'])
 @login_required

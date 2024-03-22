@@ -1,0 +1,55 @@
+{% extends "base.html" %} 
+{% block title %}User Articles{% endblock %} 
+
+{% block content %}
+
+<div class="articles-list">
+    <h2>Available Articles</h2>
+    <li class="header-row">
+        <span class="column-header">Edit</span>
+        <span class="column-header">Number</span>
+        <span class="column-header">Title of the Paper</span>
+    </li>
+    <ul id="articles">
+        {% for article in articles %}
+            <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+                <span class="article-status">
+                    {% if article.taken %}
+                        <img src="../static/finger_side.png" alt="Article Taken" />
+                    {% else %}
+                        <img src="../static/finger_up.png" alt="Article Available" />
+                    {% endif %}
+                </span>
+                <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                    {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+                </span>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const articles = document.querySelectorAll(".articles-list li");
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("article_")) {
+                const articleId = key.split("_")[1];
+                const articleElement = document.getElementById(`article-${articleId}`);
+                if (articleElement) {
+                    const img = articleElement.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    articleElement.setAttribute("data-status", "taken");
+                    articleElement.setAttribute("data-owner", localStorage.getItem(`owner_${articleId}`));
+                    if (localStorage.getItem(`owner_${articleId}`) === "{{ current_user.id }}") {
+                        articleElement.querySelector(".article-name").innerText += " (Your article)";
+                        articleElement.querySelector(".article-name").classList.add("your-article");
+                        moveArticleToTop(articleElement);
+                    }
+                }
+            }
+        });
+    });
+</script>
+
+{% endblock %}

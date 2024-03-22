@@ -5,6 +5,11 @@
 
 <div class="articles-list">
     <h2>Available Articles</h2>
+    <li class="header-row">
+        <span class="column-header">Edit</span>
+        <span class="column-header">Number</span>
+        <span class="column-header">Title of the Paper</span>
+    </li>
     <ul id="articles">
         {% for article in articles %}
             <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>

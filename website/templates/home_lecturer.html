@@ -2,34 +2,8 @@
     
 {% block content %}
 
-<h1>This is the lecturer home page</h1>
-<!-- Student List -->
-<div class="students-list">
-      <h2>Students</h2>
-      <table>
-          <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for student in students %}
-              <tr>
-                  <td>{{ student.first_name }}</td>
-                  <td>{{ student.email }}</td>
-                  <td>{{ student.role }}</td>
-              </tr>
-              {% else %}
-              <tr>
-                  <td colspan="3">No students found.</td>
-              </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-  </div>
- 
+<h2>Welcome {{ user.first_name }}  !!!</h2>
+
 
   <div class="upload-container">
     <h2>Import Students</h2>
@@ -47,6 +21,4 @@
     </form>
 </div>
 
-
-  <!-- <a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary">Add Lecturer</a> -->
       {%  endblock %}
