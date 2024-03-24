@@ -1,31 +1,53 @@
-{% extends "base.html" %} 
-{% block title %}User Articles{% endblock %} 
+{% extends "base.html" %}
+
+{% block title %}User Articles{% endblock %}
 
 {% block content %}
 
+<!-- Dropdown for selecting number of articles -->
+<form method="GET">
+    <label for="num_articles">Articles per page:</label>
+    <select name="num_articles" id="num_articles" onchange="this.form.submit()">
+        <option value="5" {% if request.args.get('num_articles', default='10') == '5' %} selected {% endif %}>5</option>
+        <option value="10" {% if request.args.get('num_articles', default='10') == '10' %} selected {% endif %}>10</option>
+        <option value="20" {% if request.args.get('num_articles', default='10') == '20' %} selected {% endif %}>20</option>
+        <option value="30" {% if request.args.get('num_articles', default='10') == '30' %} selected {% endif %}>30</option>
+        <option value="50" {% if request.args.get('num_articles', default='10') == '50' %} selected {% endif %}>50</option>
+        <option value="100" {% if request.args.get('num_articles', default='10') == '100' %} selected {% endif %}>100</option>
+    </select>
+</form>
+
+<!-- Add Article Button -->
+<a href="{{ url_for('views.upload_articles') }}" class="btn btn-primary">Upload Article</a>
+
 <div class="articles-list">
     <h2>Available Articles</h2>
-    <li class="header-row">
-        <span class="column-header">Edit</span>
-        <span class="column-header">Number</span>
-        <span class="column-header">Title of the Paper</span>
-    </li>
     <ul id="articles">
         {% for article in articles %}
-            <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
-                <span class="article-status">
-                    {% if article.taken %}
-                        <img src="../static/finger_side.png" alt="Article Taken" />
-                    {% else %}
-                        <img src="../static/finger_up.png" alt="Article Available" />
-                    {% endif %}
-                </span>
-                <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
-                    {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
-                </span>
-            </li>
+        <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+            <span class="article-status">
+                {% if article.taken %}
+                    <img src="../static/finger_side.png" alt="Article Taken" />
+                {% else %}
+                    <img src="../static/finger_up.png" alt="Article Available" />
+                {% endif %}
+            </span>
+            <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+            </span>
+        </li>
         {% endfor %}
     </ul>
+</div>
+
+<!-- Pagination Links -->
+<div class="pagination">
+    {% if prev_url %}
+    <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}" class="btn btn-primary">Next Page &raquo;</a>
+    {% endif %}
 </div>
 
 <script>

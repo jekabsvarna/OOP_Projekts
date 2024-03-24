@@ -89,9 +89,24 @@ def home():
 @views.route('/home_user_articles')
 @login_required
 def home_user_articles():
-    db_path = 'instance/database.db'  # Update with your database path
-    articles = Article.query.all()  # Fetch articles from the database
-    return render_template("home_user_articles.html", user=current_user, articles=articles)
+    # Pagination settings
+    num_articles_per_page = request.args.get('num_articles', 10, type=int)  # Default to 10 articles per page
+    page = request.args.get('page', 1, type=int)  # Default to the first page
+
+    # Total articles count and pagination calculations
+    total_articles = Article.query.count()  # Get the total number of articles
+    total_pages = ceil(total_articles / num_articles_per_page)
+    offset = (page - 1) * num_articles_per_page
+
+    # Fetch articles with limit and offset for pagination
+    articles = Article.query.offset(offset).limit(num_articles_per_page).all()  # Fetch the subset of articles for the page
+
+    # Generating URLs for previous and next pages
+    prev_url = url_for('views.home_user_articles', num_articles=num_articles_per_page, page=page-1) if page > 1 else None
+    next_url = url_for('views.home_user_articles', num_articles=num_articles_per_page, page=page+1) if page < total_pages else None
+
+    # Render the template, passing the necessary data
+    return render_template("home_user_articles.html", user=current_user, articles=articles, prev_url=prev_url, next_url=next_url)
 
 @views.route('/add_lecturer', methods=['GET', 'POST'])
 @login_required
@@ -151,7 +166,7 @@ def import_students():
     else:
         flash('Invalid file format', category='error')
     
-    return redirect(url_for('views.home_lecturer'))
+    return redirect(url_for('views.home_lecturer')) #check whether correct
 
 
 def read_students_xlsx(file):
@@ -208,14 +223,14 @@ def upload_articles():
     if file.filename == '':
         flash('No selected file', category='error')
         return redirect(request.url)
-    
+    #modification start
     if file and allowed_file(file.filename):
-        article_names = read_xlsx_file(file)
-        if article_names:
+        try:
+            article_names = read_xlsx_file(file) #possib
             save_article_names_to_database(article_names)
             flash('Article names uploaded successfully!', category='success')
-        else:
-            flash('Failed to read article names from file.', category='error')
+        except Exception as e:
+            flash(f'Failed to read article names from file: {str(e)}', category='error')
     else:
         flash('Invalid file format', category='error')
     
