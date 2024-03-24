@@ -1,31 +1,76 @@
 {% extends "base.html" %}
-{% block title %}Lecturer Students{% endblock %} 
-    
+
+{% block title %}Lecturer Students{% endblock %}
+
 {% block content %}
+<style>
+    .students-per-page {
+        text-align: left; /* Aligns the content to the left */
+    }
+    .students-list h2 {
+        margin-top: 20px; /* Adds some space above the students heading */
+    }
+    .pagination {
+        text-align: center; /* Keeps pagination centered */
+        margin-top: 20px; /* Adds space above the pagination links */
+    }
+    .add-student-btn {
+        margin-top: 20px; /* Adds space above the Add Student button */
+        display: block; /* Ensures the button takes the full width */
+        text-align: center; /* Centers the button */
+    }
+</style>
+
+<!-- Dropdown for selecting number of students -->
+<div class="students-per-page">
+    <form method="GET">
+        <label for="num_students">Students per page:</label>
+        <select name="num_students" id="num_students" onchange="this.form.submit()">
+            <option value="5" {% if request.args.get('num_students', default='10') == '5' %} selected {% endif %}>5</option>
+            <option value="10" {% if request.args.get('num_students', default='10') == '10' %} selected {% endif %}>10</option>
+            <option value="20" {% if request.args.get('num_students', default='10') == '20' %} selected {% endif %}>20</option>
+            <option value="30" {% if request.args.get('num_students', default='10') == '30' %} selected {% endif %}>30</option>
+            <option value="50" {% if request.args.get('num_students', default='10') == '50' %} selected {% endif %}>50</option>
+            <option value="100" {% if request.args.get('num_students', default='10') == '100' %} selected {% endif %}>100</option>
+        </select>
+    </form>
+</div>
+
 <!-- Student List -->
 <div class="students-list">
-      <h2>List of Students</h2>
-      <table>
-          <thead>
-              <tr>
-                  <th>Name</th>
-                  <th>Email</th>
-                  <th>Role</th>
-              </tr>
-          </thead>
-          <tbody>
-              {% for student in students %}
-              <tr>
-                  <td>{{ student.first_name }}</td>
-                  <td>{{ student.email }}</td>
-                  <td>{{ student.role }}</td>
-              </tr>
-              {% else %}
-              <tr>
-                  <td colspan="3">No students found.</td>
-              </tr>
-              {% endfor %}
-          </tbody>
-      </table>
-  </div>
+    <h2>List of Students</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Role</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.first_name }}</td>
+                <td>{{ student.email }}</td>
+                <td>{{ student.role }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No students found.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Pagination Links -->
+<div class="pagination">
+    {% if prev_url %}
+    <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
+    {% endif %}
+    {% if next_url %}
+    <a href="{{ next_url }}" class="btn btn-primary">Next Page &raquo;</a>
+    {% endif %}
+</div>
+
 {% endblock %}

@@ -1,16 +1,15 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
 from .models import User, Article
-from fetchLecturers import get_lecturers
-from fetchStudents import get_students
+from fetchLecturers import get_lecturers, get_total_lecturers_count
+from fetchStudents import get_students, get_total_students_count
 from fetchArticles import get_articles
 from werkzeug.security import generate_password_hash
 from . import db
 from flask import request
 import openpyxl
-
 from math import ceil
-from fetchLecturers import get_total_lecturers_count
+
 
 views = Blueprint('views', __name__)
 
@@ -56,27 +55,59 @@ def home_lecturer():
     else:
         flash("You are not authorized to access this page.", category="error")
         return redirect(url_for("views.home"))  # Redirect to regular home
-    
+
+# Starting to change    
 @views.route('/home_lecturer_students')
 @login_required
 def home_lecturer_students():
     if current_user.role == 'lecturer':
-        db_path = 'instance/database.db'  
-        students = get_students(db_path)
-        students_list = [{'id': id, 'email': email, 'first_name': first_name, 'role': role} 
-                          for id, email, first_name, role in students]
-        return render_template("home_lecturer_students.html", user=current_user, students=students_list)
+        # Pagination settings
+        num_students_per_page = request.args.get('num_students', 10, type=int)
+        page = request.args.get('page', 1, type=int)
+        db_path = 'instance/database.db'
+
+        # Total students count and pagination calculations
+        total_students = get_total_students_count(db_path)  # Implement this
+        total_pages = ceil(total_students / num_students_per_page)
+        offset = (page - 1) * num_students_per_page
+
+        # Fetch students with limit and offset for pagination
+        students = get_students(db_path, limit=num_students_per_page, offset=offset)  # Adjust for your DB access
+        students_list = [{'id': student[0], 'email': student[1], 'first_name': student[2], 'role': student[3]} 
+                          for student in students]
+
+        prev_url = url_for('views.home_lecturer_students', num_students=num_students_per_page, page=page-1) if page > 1 else None
+        next_url = url_for('views.home_lecturer_students', num_students=num_students_per_page, page=page+1) if page < total_pages else None
+
+        return render_template("home_lecturer_students.html", user=current_user, students=students_list, prev_url=prev_url, next_url=next_url)
     else:
         flash("You are not authorized to access this page.", category="error")
-        return redirect(url_for("views.home"))  # Redirect to regular home
+        return redirect(url_for("views.home"))
+
+
 
 @views.route('/home_lecturer_articles')
 @login_required
 def home_lecturer_articles():
-    db_path = 'instance/database.db'  # Update with your database path
-    articles = Article.query.all()  # Fetch articles from the database
-    current_user_id = current_user.id  # Get the current user's ID
-    return render_template("home_lecturer_articles.html", user=current_user, articles=articles, current_user_id=current_user_id)
+    # Defining DB path
+    db_path = 'instance/database.db'
+
+    # Pagination settings
+    num_articles_per_page = request.args.get('num_articles', 10, type=int)  # Default to 10 articles per page
+    page = request.args.get('page', 1, type=int)  # Default to the first page
+
+    # Total articles count and pagination calculations
+    total_articles = Article.query.count()  # Get the total number of articles
+    total_pages = ceil(total_articles / num_articles_per_page)
+    offset = (page - 1) * num_articles_per_page
+
+    # Fetch articles with limit and offset for pagination
+    articles = Article.query.offset(offset).limit(num_articles_per_page).all()  # Fetch the subset of articles for the page
+
+    prev_url = url_for('views.home_lecturer_articles', num_articles=num_articles_per_page, page=page-1) if page > 1 else None
+    next_url = url_for('views.home_lecturer_articles', num_articles=num_articles_per_page, page=page+1) if page < total_pages else None
+
+    return render_template("home_lecturer_articles.html", user=current_user, articles=articles, prev_url=prev_url, next_url=next_url)
 
 
 @views.route('/')
