@@ -11,7 +11,6 @@
       min-height: 100vh; /* Set minimum body height for full viewport */
       flex-direction: column; /* Stack content vertically */
       font-family: Arial, sans-serif; /* Set font family to Arial */
-      /* Center content vertically */
       align-items: center;
       justify-content: center; /* Center content horizontally as well */
     }
@@ -20,7 +19,7 @@
       flex: 1; /* Allow content area to grow */
       text-align: center; /* Center text and buttons within the content area */
       padding: 150px;
-      margin-top: -50px; /* Add some padding for visual spacing */
+      margin-top: -50px;
     }
 
     .sidebar-buttons {
@@ -131,12 +130,15 @@
   {% if user.is_authenticated %}
     {% if user.role == 'admin' %}
       <a class="nav-item nav-link" id="home" href="/home_admin">Home</a>
+      <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
     {% elif user.role == 'lecturer' %}
       <a class="nav-item nav-link" id="home" href="/home_lecturer">Home</a>
+      <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
       <a class="nav-item nav-link" id="students" href="/home_lecturer_students">Students</a> 
       <a class="nav-item nav-link" id="articles" href="/home_lecturer_articles">Articles</a> 
     {% else %}
       <a class="nav-item nav-link" id="home" href="/">Home</a>
+      <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
       {% if request.path != '/home_user_articles' %}
         <a class="nav-item nav-link" id="articles" href="/home_user_articles">Articles</a>
       {% endif %}

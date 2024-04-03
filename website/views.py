@@ -6,7 +6,7 @@ from fetchStudents import get_students, get_total_students_count
 from fetchArticles import get_articles
 from werkzeug.security import generate_password_hash
 from . import db
-from flask import request
+from flask import request, flash
 import openpyxl
 from math import ceil
 
@@ -324,4 +324,37 @@ def untake_article():
 
     return jsonify({'success': True, 'message': 'Article untaken successfully.'}), 200
 
+@views.route('/profile')
+@login_required
+def profile():
+    return render_template("profile.html", user=current_user)
 
+@views.route('/update_name', methods=['POST'])
+@login_required
+def update_name():
+    if request.method == 'POST':
+        new_name = request.form.get('name')
+        current_user.first_name = new_name
+        db.session.commit()
+        flash('Name updated successfully!', category='success')
+    return redirect(url_for('views.profile'))
+
+@views.route('/update_email', methods=['POST'])
+@login_required
+def update_email():
+    if request.method == 'POST':
+        new_email = request.form.get('email')
+        current_user.email = new_email
+        db.session.commit()
+        flash('Email updated successfully!', category='success')
+    return redirect(url_for('views.profile'))
+
+@views.route('/update_password', methods=['POST'])
+@login_required
+def update_password():
+    if request.method == 'POST':
+        new_password = request.form.get('password')
+        current_user.password = new_password
+        db.session.commit()
+        flash('Password updated successfully!', category='success')
+    return redirect(url_for('views.profile'))

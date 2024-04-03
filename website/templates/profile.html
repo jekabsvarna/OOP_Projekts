@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}Profile{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center ">
+  <div class="login-wrapper">
+    <h2>Profile Information:</h2>
+      <div class="profile-item">
+        <p>
+          <span class="column-header">Name and Surname:</span>
+          <span id="name">{{ user.first_name }}</span> 
+          <button onclick="edit('name')">Change</button>
+        </p>
+        <div id="name-edit" style="display: none;">
+          <form action="{{ url_for('views.update_name') }}" method="POST">
+            <input type="text" name="name" value="{{ user.first_name }}">
+            <button type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="profile-item">
+        <p>
+          <span class="column-header">Email:</span>
+          <span id="email">{{ user.email }}</span> 
+          <button onclick="edit('email')">Change</button>
+        </p>
+        <div id="email-edit" style="display: none;">
+          <form action="{{ url_for('views.update_email') }}" method="POST">
+            <input type="email" name="email" value="{{ user.email }}">
+            <button type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+
+      <div class="profile-item">
+        <p>
+          <span class="column-header">Password:</span>
+          <span id="password" style="display: none;">{{ user.password }}</span><span id="password-mask">********</span> <button onclick="togglePassword()">Show Password</button> <button onclick="edit('password')">Change</button>
+        </p>
+        <div id="password-edit" style="display: none;">
+          <form action="{{ url_for('views.update_password') }}" method="POST"> <input type="password" name="password">
+            <button type="submit">Save</button>
+          </form>
+        </div>
+      </div>
+  </div>
+</div>
+
+<script>
+  function edit(field) {
+    var displayStatus = document.getElementById(field + "-edit").style.display;
+    if (displayStatus === "none") {
+      document.getElementById(field + "-edit").style.display = "block";
+      document.getElementById(field).style.display = "none";
+    } else {
+      document.getElementById(field + "-edit").style.display = "none";
+      document.getElementById(field).style.display = "inline";
+    }
+  }
+
+  function togglePassword() {
+    var passwordMask = document.getElementById("password-mask");
+    var passwordField = document.getElementById("password");
+    var passwordEdit = document.getElementById("password-edit");
+
+    if (passwordField.style.display === "none") {
+      passwordField.style.display = "inline";
+      passwordMask.style.display = "none";
+      passwordEdit.style.display = "none";
+    } else {
+      passwordField.style.display = "none";
+      passwordMask.style.display = "inline";
+      passwordEdit.style.display = "none";
+    }
+  }
+</script>
+
+{% endblock %}
