@@ -16,6 +16,13 @@ views = Blueprint('views', __name__)
 @views.route('/home_admin')
 @login_required
 def home_admin():
+    db_path = 'instance/database.db'  # Update with your database path
+    articles = Article.query.all()  # Fetch articles from the database
+    return render_template("home.html", user=current_user, articles=articles)
+    
+@views.route('/admin_lecturers')  # Define the route for admin lecturers page
+@login_required
+def admin_lecturers():
     if current_user.role == 'admin':
         # Defining the DB path
         db_path = 'instance/database.db'
@@ -33,16 +40,15 @@ def home_admin():
         lecturers = get_lecturers(db_path, limit=num_lecturers_per_page, offset=offset)
         lecturers_list = [{'id': l[0], 'email': l[1], 'first_name': l[2], 'role': l[3]} for l in lecturers]
 
-        prev_url = url_for('views.home_admin', num_lecturers=num_lecturers_per_page, page=page-1) if page > 1 else None
-        next_url = url_for('views.home_admin', num_lecturers=num_lecturers_per_page, page=page+1) if page < total_pages else None
+        prev_url = url_for('views.admin_lecturers', num_lecturers=num_lecturers_per_page, page=page-1) if page > 1 else None
+        next_url = url_for('views.admin_lecturers', num_lecturers=num_lecturers_per_page, page=page+1) if page < total_pages else None
 
-        return render_template("home_admin.html", user=current_user, lecturers=lecturers_list, prev_url=prev_url, next_url=next_url)
+        return render_template("admin_lecturers.html", user=current_user, lecturers=lecturers_list, prev_url=prev_url, next_url=next_url)
     else:
         flash("You are not authorized to access this page.", category="error")
         return redirect(url_for("views.home"))
-    
-    
-    
+
+
 @views.route('/home_lecturer')
 @login_required
 def home_lecturer():

@@ -19,7 +19,7 @@
       flex: 1; /* Allow content area to grow */
       text-align: center; /* Center text and buttons within the content area */
       padding: 150px;
-      margin-top: -50px;
+      margin-top: -40px;
     }
 
     .sidebar-buttons {
@@ -131,6 +131,7 @@
     {% if user.role == 'admin' %}
       <a class="nav-item nav-link" id="home" href="/home_admin">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
+      <a class="nav-item nav-link" id="admin-lecturers" href="/admin_lecturers">Admin Lecturers</a>
     {% elif user.role == 'lecturer' %}
       <a class="nav-item nav-link" id="home" href="/home_lecturer">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
