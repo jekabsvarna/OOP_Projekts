@@ -11,12 +11,16 @@
       min-height: 100vh; /* Set minimum body height for full viewport */
       flex-direction: column; /* Stack content vertically */
       font-family: Arial, sans-serif; /* Set font family to Arial */
+      /* Center content vertically */
+      align-items: center;
+      justify-content: center; /* Center content horizontally as well */
     }
 
     .container {
       flex: 1; /* Allow content area to grow */
       text-align: center; /* Center text and buttons within the content area */
-      padding: 150px; /* Add some padding for visual spacing */
+      padding: 150px;
+      margin-top: -50px; /* Add some padding for visual spacing */
     }
 
     .sidebar-buttons {
@@ -56,7 +60,7 @@
 
     .form-control {
       display: block; /* Make input fields take up full width */
-      width: 100%; /* Set input field width to 100% */
+      width: 300px; /* Set the desired width in pixels */
       padding: 10px; /* Add padding for visual spacing */
       border: 1px solid #000000; /* Add a border */
       border-radius: 4px; /* Add rounded corners */
@@ -80,50 +84,43 @@
     }
 
     .articles-list ul {
-    list-style-type: none; /* Remove default list styles */
-    padding: 0; /* Remove default padding */
+      list-style-type: none; /* Remove default list styles */
+      padding: 0; /* Remove default padding */
     }
 
     .articles-list li {
-    display: flex; /* Use flexbox layout */
-    align-items: center; /* Align items vertically */
-    justify-content: flex-start; /* Align items to the start */
-    margin-bottom: 5px; /* Reduce space between articles */
+      display: flex; /* Use flexbox layout */
+      align-items: center; /* Align items vertically */
+      justify-content: flex-start; /* Align items to the start */
+      margin-bottom: 5px; /* Reduce space between articles */
     }
 
     .articles-list .article-status img {
-    width: 30px; /* Set the width of the icon */
-    height: auto; /* Maintain aspect ratio */
-    margin-right: 10px; /* Add space between icon and article name */
+      width: 30px; /* Set the width of the icon */
+      height: auto; /* Maintain aspect ratio */
+      margin-right: 10px; /* Add space between icon and article name */
     }
 
     .articles-list .second-article {
-    align-self: flex-start; /* Align the second article to the left */
-  }
+      align-self: flex-start; /* Align the second article to the left */
+    }
 
     .your-article {
-    color: rgb(0, 0, 0);
-    font-weight: bold;
+     color: rgb(0, 0, 0);
+      font-weight: bold;
     }
 
     .column-header {
-  margin-right: 20px; /* Add space between column headers */
-  font-weight: bold; /* Make column headers bold */
-  }
+     margin-right: 20px; /* Add space between column headers */
+      font-weight: bold; /* Make column headers bold */
+    }
 
-  .login-wrapper {
-  border: 2px solid #ddd;
-  padding: 20px;
-  border-radius: 5px;
-  }
-
-  .card-body {  /* Targetting card-body specifically */
-  background-color: #f2f2f2;  /* Set grey background color here */
-  }
-
-  .card {  /* Targetting card for centering content */
-  text-align: center;  /* Center elements horizontally within card */
-  }
+    .login-wrapper {
+      border: 5px solid #ddd;
+      padding: 50px;
+      border-radius: 5px;
+      background-color: #f2f2f2; /* Set background color for the outer rectangle */
+    }
   
   </style>
 
