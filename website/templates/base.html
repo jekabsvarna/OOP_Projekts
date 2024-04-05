@@ -82,16 +82,27 @@
       z-index: 10; /* Ensure message appears above other content */
     }
 
-    .articles-list ul {
-      list-style-type: none; /* Remove default list styles */
-      padding: 0; /* Remove default padding */
+    .articles-list table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px; /* Add margin between table and other content */
     }
 
-    .articles-list li {
-      display: flex; /* Use flexbox layout */
-      align-items: center; /* Align items vertically */
-      justify-content: flex-start; /* Align items to the start */
-      margin-bottom: 5px; /* Reduce space between articles */
+    .articles-list th, .articles-list td {
+      border: 1px solid #ddd; /* Add border to table cells */
+      padding: 8px; /* Add padding to table cells */
+    }
+
+    .articles-list th {
+      background-color: #f2f2f2; /* Light grey background for header */
+    }
+
+    .articles-list tbody tr:nth-child(even) {
+      background-color: #f9f9f9; /* Even rows have slightly darker background */
+    }
+
+    .articles-list tbody tr:hover {
+      background-color: #f2f2f2; /* Hover effect for rows */
     }
 
     .articles-list .article-status img {
@@ -131,7 +142,7 @@
     {% if user.role == 'admin' %}
       <a class="nav-item nav-link" id="home" href="/home_admin">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
-      <a class="nav-item nav-link" id="admin-lecturers" href="/admin_lecturers">Admin Lecturers</a>
+      <a class="nav-item nav-link" id="admin-lecturers" href="/admin_lecturers">Lecturers</a>
     {% elif user.role == 'lecturer' %}
       <a class="nav-item nav-link" id="home" href="/home_lecturer">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>

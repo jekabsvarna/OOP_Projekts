@@ -17,26 +17,34 @@
     </select>
 </form>
 
-
-
 <div class="articles-list">
     <h2>Available Articles</h2>
-    <ul id="articles">
-        {% for article in articles %}
-        <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
-            <span class="article-status">
-                {% if article.taken %}
-                    <img src="../static/finger_side.png" alt="Article Taken" />
-                {% else %}
-                    <img src="../static/finger_up.png" alt="Article Available" />
-                {% endif %}
-            </span>
-            <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
-                {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
-            </span>
-        </li>
-        {% endfor %}
-    </ul>
+    <table>
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>Edit</th>
+                <th>Title of article</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+                <td>{{ article.id }}</td>
+                <td class="article-status">
+                    {% if article.taken %}
+                        <img src="../static/finger_side.png" alt="Article Taken" />
+                    {% else %}
+                        <img src="../static/finger_up.png" alt="Article Available" />
+                    {% endif %}
+                </td>
+                <td class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                    {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <!-- Pagination Links -->
@@ -51,7 +59,7 @@
 
 <script>
     document.addEventListener("DOMContentLoaded", function() {
-        const articles = document.querySelectorAll(".articles-list li");
+        const articles = document.querySelectorAll(".articles-list tbody tr");
         const maxArticlesPerUser = 2;
 
         articles.forEach(article => {
@@ -97,14 +105,14 @@
         }
 
         function moveArticleToTop(article) {
-            const articlesList = document.getElementById("articles");
+            const articlesList = document.querySelector(".articles-list tbody");
             articlesList.prepend(article);
         }
 
         function moveArticleToOriginalPosition(article) {
             const articleId = article.getAttribute("data-article-id");
             const originalIndex = parseInt(articleId) - 1;
-            const articlesList = document.getElementById("articles");
+            const articlesList = document.querySelector(".articles-list tbody");
             const articles = articlesList.children;
 
             // Find the element that should be before the unselected article
