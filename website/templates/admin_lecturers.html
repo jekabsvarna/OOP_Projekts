@@ -4,23 +4,35 @@
 
 {% block content %}
 <style>
-    .lecturers-per-page {
-        text-align: left; /* Aligns the content to the left */
+    .lecturers-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Add margin between table and other content */
     }
-    .lecturers-list h2 {
-        margin-top: 20px; /* Adds some space above the lecturers heading */
+
+    .lecturers-list th, .lecturers-list td {
+    border: 1px solid #ddd; /* Add border to table cells */
+    padding: 8px; /* Add padding to table cells */
     }
-    .pagination {
-        text-align: center; /* Keeps pagination centered */
-        margin-top: 20px; /* Adds space above the pagination links */
+
+    .lecturers-list th {
+    background-color: #f2f2f2; /* Light grey background for header */
     }
+
+    .lecturers-list tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Even rows have slightly darker background */
+    }
+
     .add-lecturer-btn {
         margin-top: 20px; /* Adds space above the Add Lecturer button */
-        
+        margin-left: -1260px; 
     }
 </style>
 
-<!-- Dropdown for selecting number of lecturers -->
+<!-- Add Lecturer Button -->
+<a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary add-lecturer-btn">Add Lecturer</a>
+
+
 <div class="lecturers-per-page">
     <form method="GET">
         <label for="num_lecturers">Lecturers per page:</label>
@@ -72,6 +84,4 @@
 <br>
 <br>
 <br>
-<!-- Add Lecturer Button -->
-<a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary add-lecturer-btn">Add Lecturer</a>
 {% endblock %}

@@ -3,61 +3,48 @@
 {% block title %}User Articles{% endblock %}
 
 {% block content %}
-<style>
-    /* Aligns the articles per page dropdown and label to the left */
-    .articles-per-page {
-        text-align: left;
-    }
-    /* Adds some space above the Available Articles heading */
-    .articles-list h2 {
-        margin-top: 20px;
-    }
-    /* Keeps pagination links centered and adds space above them */
-    .pagination {
-        text-align: center;
-        margin-top: 20px;
-    }
-    /* Adds space above the Upload Article button */
-    .add-article-btn {
-        display: block; /* Makes sure the link behaves like a block for margin to work */
-        margin-top: 20px;
-        text-align: center; /* Center-aligns the button */
-    }
-</style>
 
 <!-- Dropdown for selecting number of articles -->
-<div class="articles-per-page">
-    <form method="GET">
-        <label for="num_articles">Articles per page:</label>
-        <select name="num_articles" id="num_articles" onchange="this.form.submit()">
-            <option value="5" {% if request.args.get('num_articles', default='10') == '5' %} selected {% endif %}>5</option>
-            <option value="10" {% if request.args.get('num_articles', default='10') == '10' %} selected {% endif %}>10</option>
-            <option value="20" {% if request.args.get('num_articles', default='10') == '20' %} selected {% endif %}>20</option>
-            <option value="30" {% if request.args.get('num_articles', default='10') == '30' %} selected {% endif %}>30</option>
-            <option value="50" {% if request.args.get('num_articles', default='10') == '50' %} selected {% endif %}>50</option>
-            <option value="100" {% if request.args.get('num_articles', default='10') == '100' %} selected {% endif %}>100</option>
-        </select>
-    </form>
-</div>
+<form method="GET">
+    <label for="num_articles">Articles per page:</label>
+    <select name="num_articles" id="num_articles" onchange="this.form.submit()">
+        <option value="5" {% if request.args.get('num_articles', default='10') == '5' %} selected {% endif %}>5</option>
+        <option value="10" {% if request.args.get('num_articles', default='10') == '10' %} selected {% endif %}>10</option>
+        <option value="20" {% if request.args.get('num_articles', default='10') == '20' %} selected {% endif %}>20</option>
+        <option value="30" {% if request.args.get('num_articles', default='10') == '30' %} selected {% endif %}>30</option>
+        <option value="50" {% if request.args.get('num_articles', default='10') == '50' %} selected {% endif %}>50</option>
+        <option value="100" {% if request.args.get('num_articles', default='10') == '100' %} selected {% endif %}>100</option>
+    </select>
+</form>
 
 <div class="articles-list">
-    <h2>Available Articles</h2>
-    <ul id="articles">
-        {% for article in articles %}
-        <li id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
-            <span class="article-status">
-                {% if article.taken %}
-                    <img src="../static/finger_side.png" alt="Article Taken" />
-                {% else %}
-                    <img src="../static/finger_up.png" alt="Article Available" />
-                {% endif %}
-            </span>
-            <span class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
-                {{ article.id }}. {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
-            </span>
-        </li>
-        {% endfor %}
-    </ul>
+    <h2>Articles</h2>
+    <table>
+        <thead>
+            <tr>
+                <th>Nr</th>
+                <th>Edit</th>
+                <th>Title of article</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for article in articles %}
+            <tr id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
+                <td>{{ article.id }}</td>
+                <td class="article-status">
+                    {% if article.taken %}
+                        <img src="../static/finger_side.png" alt="Article Taken" />
+                    {% else %}
+                        <img src="../static/finger_up.png" alt="Article Available" />
+                    {% endif %}
+                </td>
+                <td class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
+                    {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
 </div>
 
 <!-- Pagination Links -->
@@ -69,5 +56,25 @@
     <a href="{{ next_url }}" class="btn btn-primary">Next Page &raquo;</a>
     {% endif %}
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        const articles = document.querySelectorAll(".articles-list tbody tr");
+
+        Object.keys(localStorage).forEach(key => {
+            if (key.startsWith("article_")) {
+                const articleId = key.split("_")[1];
+                const articleElement = document.getElementById(`article-${articleId}`);
+                if (articleElement) {
+                    const img = articleElement.querySelector(".article-status img");
+                    img.src = "../static/finger_side.png";
+                    articleElement.setAttribute("data-status", "taken");
+                    articleElement.setAttribute("data-owner", localStorage.getItem(`owner_${articleId}`));
+
+                }
+            }
+        });
+    });
+</script>
 
 {% endblock %}

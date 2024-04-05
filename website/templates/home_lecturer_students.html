@@ -4,20 +4,27 @@
 
 {% block content %}
 <style>
-    .students-per-page {
-        text-align: left; /* Aligns the content to the left */
+    .students-list table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 20px; /* Add margin between table and other content */
     }
-    .students-list h2 {
-        margin-top: 20px; /* Adds some space above the students heading */
+
+    .students-list th, .students-list td {
+    border: 1px solid #ddd; /* Add border to table cells */
+    padding: 8px; /* Add padding to table cells */
     }
-    .pagination {
-        text-align: center; /* Keeps pagination centered */
-        margin-top: 20px; /* Adds space above the pagination links */
+
+    .students-list th {
+    background-color: #f2f2f2; /* Light grey background for header */
     }
-    .add-student-btn {
-        margin-top: 20px; /* Adds space above the Add Student button */
-        display: block; /* Ensures the button takes the full width */
-        text-align: center; /* Centers the button */
+
+    .students-list tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Even rows have slightly darker background */
+    }
+
+    .students-list tbody tr:hover {
+    background-color: #f2f2f2; /* Hover effect for rows */
     }
 </style>
 
