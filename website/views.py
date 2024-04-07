@@ -7,7 +7,7 @@ from fetchArticles import get_articles
 from werkzeug.security import generate_password_hash
 from . import db
 from flask import request
-import openpyxl
+import openpyxl, json
 from math import ceil
 from datetime import datetime
 
@@ -329,8 +329,6 @@ def untake_article():
 
     return jsonify({'success': True, 'message': 'Article untaken successfully.'}), 200
 
-
-
 @views.route('/profile')
 @login_required
 def profile():
@@ -366,17 +364,36 @@ def update_password():
         flash('Password updated successfully!', category='success')
     return redirect(url_for('views.profile'))
 
+@views.route('/update_email', methods=['POST'])
+@login_required
+def enroll_student(workshop_id):
+    student_id = request.form['student_id']
+    enrollment = Enrollment(student_id=student_id, workshop_id=workshop_id)
+    db.session.add(enrollment)
+    db.session.commit()
+    return redirect(url_for('workshop_details', workshop_id=workshop_id))
+
 @views.route('/add_workshop', methods=['GET', 'POST'])
 @login_required
 def add_workshop():
     if request.method == 'POST':
         title = request.form['title']
         date = request.form['date']
+        selected_students = json.loads(request.form['students'])  # Get list of selected student IDs
+
         try:
             formatted_date = datetime.strptime(date, '%Y-%m-%dT%H:%M')
             new_workshop = Workshop(title=title, date=formatted_date, lecturer_id=current_user.id)
             db.session.add(new_workshop)
             db.session.commit()
+
+            # Enroll selected students in the workshop
+            for student_id in selected_students:
+                enrollment = Enrollment(student_id=student_id, workshop_id=new_workshop.id)
+                db.session.add(enrollment)
+            db.session.commit()
+
+            flash('Workshop created successfully with selected students enrolled.', 'success')
             return redirect(url_for('views.home_lecturer')) 
         except ValueError as e:
             print(f"Error parsing date: {e}")
@@ -387,15 +404,7 @@ def add_workshop():
             print(f"Error during database transaction: {e}")
             flash('A database error occurred. Please try again.', 'error')
             return render_template('add_workshop.html')
-    return render_template('add_workshop.html')
 
-@views.route('/update_email', methods=['POST'])
-@login_required
-def enroll_student(workshop_id):
-    student_id = request.form['student_id']
-    enrollment = Enrollment(student_id=student_id, workshop_id=workshop_id)
-    db.session.add(enrollment)
-    db.session.commit()
-    return redirect(url_for('workshop_details', workshop_id=workshop_id))
-
-
+    # If GET request or no form submission
+    students = User.query.filter_by(role='student').all()
+    return render_template('add_workshop.html', students=students)
