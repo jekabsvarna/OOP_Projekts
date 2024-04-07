@@ -1,101 +1,119 @@
 {% extends "base.html" %}
 {% block content %}
+
 <div class="container">
-    <h2>Add Workshop</h2>
-    <form action="{{ url_for('views.add_workshop') }}" method="post" id="workshop-form">
-        <input type="text" name="title" placeholder="Workshop Title" required>
-        <input type="datetime-local" name="date" required>
+  <form action="{{ url_for('views.add_workshop') }}" method="post" id="workshop-form">
+    <input type="text" name="title" placeholder="Workshop Title" required>
+    <input type="datetime-local" name="date" required>
 
-        <div class="row">
-            <div class="col">
-                <!-- Table for all students -->
-                <h3>No group</h3>
-                <table class="table student-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody class="all-students-list">
-                        {% for student in students %}
-                            <tr>
-                                <td data-id="{{ student.id }}">{{ student.first_name }}</td>
-                            </tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
-            <div class="col">
-                <!-- Table for selected students -->
-                <h3>Group A</h3>
-                <table class="table student-table">
-                    <thead>
-                        <tr>
-                            <th>Name</th>
-                        </tr>
-                    </thead>
-                    <tbody class="selected-students-list">
-                        <!-- This tbody will be populated dynamically -->
-                    </tbody>
-                </table>
-            </div>
-        </div>
-        
-        <!-- Hidden input field to store selected student IDs -->
-        <input type="hidden" id="selected-students" name="students">
+    <div class="student-selection-wrapper" style="margin-top: 50px;"> <div class="col-md-6 pr-0 student-list-container">
+        <h3>No group</h3>
+        <table class="table student-table table-bordered">
+          <thead>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody class="all-students-list">
+            {% for student in students %}
+              <tr data-id="{{ student.id }}">
+                <td>{{ student.first_name }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
 
-        <button type="submit">Create Workshop</button>
-    </form>
+      <div class="col-md-6 pl-0 student-list-container">
+        <h3>Group A</h3>
+        <table class="table student-table table-bordered">
+          <thead>
+            <tr>
+              <th>Name</th>
+            </tr>
+          </thead>
+          <tbody class="selected-students-list">
+            </tbody>
+        </table>
+      </div>
+    </div>
+
+    <input type="hidden" id="selected-students" name="students">
+
+    <button type="submit">Create Workshop</button>
+  </form>
 </div>
 
 <style>
-    .col {
-        margin: 0 10px; /* Add margin between columns */
+    .container {
+      display: flex;
+      justify-content: center;
     }
-
+  
+    .student-selection-wrapper {
+      display: flex;
+      margin: 10px auto;
+    }
+  
+    .student-list-container {
+      border: 5px solid #ccc; /* Changed border color to grey */
+      border-radius: 4px;
+      margin: 0 10px;
+      width: calc(200px); /* Adjusted width to 55% */
+    }
+  
     .student-table {
-        width: 100%; /* Ensure tables take full width */
+      width: 100%;
+      margin-bottom: 0;
+      border: 5px solid #ccc; /* Changed border color to grey */
     }
-</style>
+  
+    /* Hide student row on selection */
+    .all-students-list tr[data-selected="true"] {
+      display: none;
+    }
+  </style>
+  
+  
 
 <script>
-    // JavaScript code for adding/removing students to/from selected list
-    document.addEventListener('DOMContentLoaded', function () {
-        var workshopForm = document.getElementById('workshop-form');
-        var allStudents = workshopForm.querySelector('.all-students-list');
-        var selectedStudentsList = workshopForm.querySelector('.selected-students-list');
-        var selectedStudentsInput = workshopForm.querySelector('#selected-students');
+  document.addEventListener('DOMContentLoaded', function () {
+    var workshopForm = document.getElementById('workshop-form');
+    var allStudents = workshopForm.querySelector('.all-students-list');
+    var selectedStudentsList = workshopForm.querySelector('.selected-students-list');
+    var selectedStudentsInput = workshopForm.querySelector('#selected-students');
 
-        allStudents.addEventListener('click', function (event) {
-            if (event.target.tagName === 'TD') {
-                var studentId = event.target.getAttribute('data-id');
-                var studentName = event.target.textContent;
+    allStudents.addEventListener('click', function (event) {
+      if (event.target.tagName === 'TD') {
+        var studentId = event.target.parentElement.dataset.id;
+        var studentName = event.target.textContent;
 
-                var existingStudent = selectedStudentsList.querySelector('td:first-child');
-                if (!existingStudent || existingStudent.textContent !== studentName) {
-                    var newRow = document.createElement('tr');
-                    newRow.innerHTML = '<td>' + studentName + '</td>';
-                    selectedStudentsList.appendChild(newRow);
-                    // Add student ID to the list
-                    addStudentId(studentId);
-                }
-            }
-        });
+        var existingStudent = selectedStudentsList.querySelector('td:first-child');
+        if (!existingStudent || existingStudent.textContent !== studentName) {
+          var newRow = document.createElement('tr');
+          newRow.innerHTML = '<td>' + studentName + '</td>';
+          selectedStudentsList.appendChild(newRow);
+          // Add student ID to the list
+          addStudentId(studentId);
 
-        // Function to add student ID to the list
-        function addStudentId(studentId) {
-            var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
-            currentIds.push(studentId);
-            selectedStudentsInput.value = JSON.stringify(currentIds);
+          // Mark student row as selected for hiding
+          event.target.parentElement.dataset.selected = "true";
         }
-
-        // Prevent form submission if no students are selected
-        workshopForm.addEventListener('submit', function (event) {
-            if (selectedStudentsList.children.length === 0) {
-                event.preventDefault();
-                alert('Please select at least one student.');
-            }
-        });
+      }
     });
+
+    function addStudentId(studentId) {
+      var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+      currentIds.push(studentId);
+      selectedStudentsInput.value = JSON.stringify(currentIds);
+    }
+
+    workshopForm.addEventListener('submit', function (event) {
+      if (selectedStudentsList.children.length === 0) {
+        event.preventDefault();
+        alert('Please select at least one student.');
+      }
+    });
+  });
 </script>
 {% endblock %}
