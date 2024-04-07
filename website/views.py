@@ -1,14 +1,15 @@
 from flask import Blueprint, render_template, flash, redirect, url_for, request, jsonify
 from flask_login import login_required, current_user
-from .models import User, Article
+from .models import User, Article, Workshop, Enrollment
 from fetchLecturers import get_lecturers, get_total_lecturers_count
 from fetchStudents import get_students, get_total_students_count
 from fetchArticles import get_articles
 from werkzeug.security import generate_password_hash
 from . import db
-from flask import request, flash
+from flask import request
 import openpyxl
 from math import ceil
+from datetime import datetime
 
 
 views = Blueprint('views', __name__)
@@ -19,23 +20,20 @@ def home_admin():
     db_path = 'instance/database.db'  # Update with your database path
     articles = Article.query.all()  # Fetch articles from the database
     return render_template("home.html", user=current_user, articles=articles)
-    
+
 @views.route('/admin_lecturers')  # Define the route for admin lecturers page
 @login_required
 def admin_lecturers():
     if current_user.role == 'admin':
         # Defining the DB path
         db_path = 'instance/database.db'
-
         # Pagination settings
         num_lecturers_per_page = request.args.get('num_lecturers', 10, type=int)
         page = request.args.get('page', 1, type=int)
-
         # Total lecturers count and pagination calculations
         total_lecturers = get_total_lecturers_count(db_path)  # You'll need to implement this function
         total_pages = ceil(total_lecturers / num_lecturers_per_page)
         offset = (page - 1) * num_lecturers_per_page
-
         # Fetch lecturers with limit and offset for pagination #='instance/database.db'
         lecturers = get_lecturers(db_path, limit=num_lecturers_per_page, offset=offset)
         lecturers_list = [{'id': l[0], 'email': l[1], 'first_name': l[2], 'role': l[3]} for l in lecturers]
@@ -46,9 +44,9 @@ def admin_lecturers():
         return render_template("admin_lecturers.html", user=current_user, lecturers=lecturers_list, prev_url=prev_url, next_url=next_url)
     else:
         flash("You are not authorized to access this page.", category="error")
-        return redirect(url_for("views.home"))
-
-
+        return redirect(url_for("views.home"))   
+    
+   
 @views.route('/home_lecturer')
 @login_required
 def home_lecturer():
@@ -67,20 +65,21 @@ def home_lecturer():
 @login_required
 def home_lecturer_students():
     if current_user.role == 'lecturer':
+        # Defining DB path
+        db_path = 'instance/database.db'
+
         # Pagination settings
         num_students_per_page = request.args.get('num_students', 10, type=int)
         page = request.args.get('page', 1, type=int)
-        db_path = 'instance/database.db'
 
         # Total students count and pagination calculations
-        total_students = get_total_students_count(db_path)  # Implement this
+        total_students = get_total_students_count(db_path)
         total_pages = ceil(total_students / num_students_per_page)
         offset = (page - 1) * num_students_per_page
 
         # Fetch students with limit and offset for pagination
         students = get_students(db_path, limit=num_students_per_page, offset=offset)  # Adjust for your DB access
-        students_list = [{'id': student[0], 'email': student[1], 'first_name': student[2], 'role': student[3]} 
-                          for student in students]
+        students_list = [{'id': student[0], 'email': student[1], 'first_name': student[2], 'role': student[3]} for student in students]
 
         prev_url = url_for('views.home_lecturer_students', num_students=num_students_per_page, page=page-1) if page > 1 else None
         next_url = url_for('views.home_lecturer_students', num_students=num_students_per_page, page=page+1) if page < total_pages else None
@@ -119,7 +118,7 @@ def home_lecturer_articles():
 @views.route('/')
 @login_required
 def home():
-    db_path = 'instance/database.db'  # Update with your database path
+    db_path = 'instance/database.db'  
     articles = Article.query.all()  # Fetch articles from the database
     return render_template("home.html", user=current_user, articles=articles)
 
@@ -330,6 +329,8 @@ def untake_article():
 
     return jsonify({'success': True, 'message': 'Article untaken successfully.'}), 200
 
+
+
 @views.route('/profile')
 @login_required
 def profile():
@@ -364,3 +365,37 @@ def update_password():
         db.session.commit()
         flash('Password updated successfully!', category='success')
     return redirect(url_for('views.profile'))
+
+@views.route('/add_workshop', methods=['GET', 'POST'])
+@login_required
+def add_workshop():
+    if request.method == 'POST':
+        title = request.form['title']
+        date = request.form['date']
+        try:
+            formatted_date = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+            new_workshop = Workshop(title=title, date=formatted_date, lecturer_id=current_user.id)
+            db.session.add(new_workshop)
+            db.session.commit()
+            return redirect(url_for('views.home_lecturer')) 
+        except ValueError as e:
+            print(f"Error parsing date: {e}")
+            flash('Invalid date format. Please use YYYY-MM-DDTHH:MM format.', 'error')
+            return render_template('add_workshop.html')
+        except Exception as e:
+            db.session.rollback()  # Rollback the transaction if any db error occurs
+            print(f"Error during database transaction: {e}")
+            flash('A database error occurred. Please try again.', 'error')
+            return render_template('add_workshop.html')
+    return render_template('add_workshop.html')
+
+@views.route('/update_email', methods=['POST'])
+@login_required
+def enroll_student(workshop_id):
+    student_id = request.form['student_id']
+    enrollment = Enrollment(student_id=student_id, workshop_id=workshop_id)
+    db.session.add(enrollment)
+    db.session.commit()
+    return redirect(url_for('workshop_details', workshop_id=workshop_id))
+
+

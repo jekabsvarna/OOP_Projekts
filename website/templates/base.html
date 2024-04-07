@@ -138,16 +138,17 @@
 
 </head>
 <div class="sidebar-buttons">
-  {% if user.is_authenticated %}
-    {% if user.role == 'admin' %}
+  {% if current_user.is_authenticated %}
+    {% if current_user.role == 'admin' %}
       <a class="nav-item nav-link" id="home" href="/home_admin">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
       <a class="nav-item nav-link" id="admin-lecturers" href="/admin_lecturers">Lecturers</a>
-    {% elif user.role == 'lecturer' %}
+    {% elif current_user.role == 'lecturer' %}
       <a class="nav-item nav-link" id="home" href="/home_lecturer">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>
       <a class="nav-item nav-link" id="students" href="/home_lecturer_students">Students</a> 
       <a class="nav-item nav-link" id="articles" href="/home_lecturer_articles">Articles</a> 
+      <a class="nav-item nav-link" id="workshops" href="/add_workshop">Add Workshop</a>
     {% else %}
       <a class="nav-item nav-link" id="home" href="/">Home</a>
       <a class="nav-item nav-link" id="profile" href="/profile">Profile</a>

@@ -19,6 +19,37 @@ try:
 except sqlite3.OperationalError:
     print('Database already exists.')
 
+# Create the workshop table
+try:
+    cur.execute('''
+    CREATE TABLE workshop (
+        id INTEGER PRIMARY KEY,
+        title VARCHAR(255),
+        date DATETIME,
+        lecturer_id INTEGER,
+        FOREIGN KEY (lecturer_id) REFERENCES user (id)
+    );
+    ''')
+    print('Created workshop table!')
+except sqlite3.OperationalError as e:
+    print(f'Error creating workshop table: {e}')
+
+# Create the enrollment table
+try:
+    cur.execute('''
+    CREATE TABLE enrollment (
+        id INTEGER PRIMARY KEY,
+        student_id INTEGER,
+        workshop_id INTEGER,
+        FOREIGN KEY (student_id) REFERENCES user (id),
+        FOREIGN KEY (workshop_id) REFERENCES workshop (id)
+    );
+    ''')
+    print('Created enrollment table!')
+except sqlite3.OperationalError:
+    print('Enrollment table already exists.')
+
+
 # Admin user details
 admin_email = "admin@rtu.lv"
 admin_password = "secureadminpassword"  # Replace with a hashed password
