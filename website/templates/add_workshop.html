@@ -74,46 +74,92 @@
     }
   </style>
   
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      var workshopForm = document.getElementById('workshop-form');
+      var allStudents = workshopForm.querySelector('.all-students-list');
+      var selectedStudentsList = workshopForm.querySelector('.selected-students-list');
+      var selectedStudentsInput = workshopForm.querySelector('#selected-students');
   
-
-<script>
-  document.addEventListener('DOMContentLoaded', function () {
-    var workshopForm = document.getElementById('workshop-form');
-    var allStudents = workshopForm.querySelector('.all-students-list');
-    var selectedStudentsList = workshopForm.querySelector('.selected-students-list');
-    var selectedStudentsInput = workshopForm.querySelector('#selected-students');
-
-    allStudents.addEventListener('click', function (event) {
-      if (event.target.tagName === 'TD') {
-        var studentId = event.target.parentElement.dataset.id;
-        var studentName = event.target.textContent;
-
-        var existingStudent = selectedStudentsList.querySelector('td:first-child');
-        if (!existingStudent || existingStudent.textContent !== studentName) {
-          var newRow = document.createElement('tr');
-          newRow.innerHTML = '<td>' + studentName + '</td>';
-          selectedStudentsList.appendChild(newRow);
-          // Add student ID to the list
-          addStudentId(studentId);
-
-          // Mark student row as selected for hiding
-          event.target.parentElement.dataset.selected = "true";
+      // Function to add a student to the selected list
+      function addStudent(studentId, studentName) {
+        var newRow = document.createElement('tr');
+        newRow.innerHTML = '<td>' + studentName + '</td>';
+        newRow.dataset.id = studentId; // Set data-id attribute
+        selectedStudentsList.appendChild(newRow);
+        // Add student ID to the list
+        addStudentId(studentId);
+      }
+  
+      // Function to remove a student from the selected list
+      function removeStudent(studentId) {
+        var selectedRow = selectedStudentsList.querySelector('tr[data-id="' + studentId + '"]');
+        if (selectedRow) {
+          selectedRow.remove();
+          // Remove student ID from the list
+          removeStudentId(studentId);
         }
       }
-    });
-
-    function addStudentId(studentId) {
-      var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
-      currentIds.push(studentId);
-      selectedStudentsInput.value = JSON.stringify(currentIds);
-    }
-
-    workshopForm.addEventListener('submit', function (event) {
-      if (selectedStudentsList.children.length === 0) {
-        event.preventDefault();
-        alert('Please select at least one student.');
+  
+      // Function to add a student ID to the selected students input field
+      function addStudentId(studentId) {
+        var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+        currentIds.push(studentId);
+        selectedStudentsInput.value = JSON.stringify(currentIds);
       }
+  
+      // Function to remove a student ID from the selected students input field
+      function removeStudentId(studentId) {
+        var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+        var index = currentIds.indexOf(studentId);
+        if (index !== -1) {
+          currentIds.splice(index, 1);
+          selectedStudentsInput.value = JSON.stringify(currentIds);
+        }
+      }
+  
+      // Event listener to move a student back to the first list when clicked
+      selectedStudentsList.addEventListener('click', function (event) {
+        if (event.target.tagName === 'TD') {
+          var studentId = event.target.parentElement.dataset.id;
+          var studentName = event.target.textContent;
+  
+          // Remove student from the selected list
+          removeStudent(studentId);
+  
+          // Mark student row as unselected for showing in the first list
+          var unselectedRow = allStudents.querySelector('tr[data-id="' + studentId + '"]');
+          if (unselectedRow) {
+            unselectedRow.dataset.selected = "false";
+          }
+        }
+      });
+  
+      // Event listener to add a student to the selected list when clicked
+      allStudents.addEventListener('click', function (event) {
+        if (event.target.tagName === 'TD') {
+          var studentId = event.target.parentElement.dataset.id;
+          var studentName = event.target.textContent;
+  
+          var existingStudent = selectedStudentsList.querySelector('td:first-child');
+          if (!existingStudent || existingStudent.textContent !== studentName) {
+            // Add student to the selected list
+            addStudent(studentId, studentName);
+  
+            // Mark student row as selected for hiding
+            event.target.parentElement.dataset.selected = "true";
+          }
+        }
+      });
+  
+      // Form submission validation
+      workshopForm.addEventListener('submit', function (event) {
+        if (selectedStudentsList.children.length === 0) {
+          event.preventDefault();
+          alert('Please select at least one student.');
+        }
+      });
     });
-  });
-</script>
+  </script>
+  
 {% endblock %}
