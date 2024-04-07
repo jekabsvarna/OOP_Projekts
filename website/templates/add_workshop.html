@@ -6,7 +6,12 @@
     <input type="text" name="title" placeholder="Workshop Title" required>
     <input type="datetime-local" name="date" required>
 
-    <div class="student-selection-wrapper" style="margin-top: 50px;"> <div class="col-md-6 pr-0 student-list-container">
+    <label for="num-groups">Number of Groups:</label>
+    <input type="number" id="num-groups" name="num_groups" min="1" value="1" required>
+    <button type="button" id="add-groups-btn">Add Groups</button>
+
+    <div class="student-selection-wrapper" style="margin-top: 50px; display: flex;">
+      <div class="col-md-6 pr-0 student-list-container">
         <h3>No group</h3>
         <table class="table student-table table-bordered">
           <thead>
@@ -23,143 +28,170 @@
           </tbody>
         </table>
       </div>
-
-      <div class="col-md-6 pl-0 student-list-container">
-        <h3>Group A</h3>
-        <table class="table student-table table-bordered">
-          <thead>
-            <tr>
-              <th>Name</th>
-            </tr>
-          </thead>
-          <tbody class="selected-students-list">
-            </tbody>
-        </table>
-      </div>
+      <div id="groups-container" class="col-md-6 pl-0 d-flex flex-wrap"></div>
     </div>
 
     <input type="hidden" id="selected-students" name="students">
+    <input type="hidden" id="group-data" name="group_data">
 
     <button type="submit">Create Workshop</button>
   </form>
 </div>
 
 <style>
-    .container {
-      display: flex;
-      justify-content: center;
-    }
-  
-    .student-selection-wrapper {
-      display: flex;
-      margin: 10px auto;
-    }
-  
-    .student-list-container {
-      border: 5px solid #ccc; /* Changed border color to grey */
-      border-radius: 4px;
-      margin: 0 10px;
-      width: calc(200px); /* Adjusted width to 55% */
-    }
-  
-    .student-table {
-      width: 100%;
-      margin-bottom: 0;
-      border: 5px solid #ccc; /* Changed border color to grey */
-    }
-  
-    /* Hide student row on selection */
-    .all-students-list tr[data-selected="true"] {
-      display: none;
-    }
-  </style>
-  
-  <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      var workshopForm = document.getElementById('workshop-form');
-      var allStudents = workshopForm.querySelector('.all-students-list');
-      var selectedStudentsList = workshopForm.querySelector('.selected-students-list');
-      var selectedStudentsInput = workshopForm.querySelector('#selected-students');
-  
-      // Function to add a student to the selected list
-      function addStudent(studentId, studentName) {
-        var newRow = document.createElement('tr');
-        newRow.innerHTML = '<td>' + studentName + '</td>';
-        newRow.dataset.id = studentId; // Set data-id attribute
-        selectedStudentsList.appendChild(newRow);
-        // Add student ID to the list
-        addStudentId(studentId);
-      }
-  
-      // Function to remove a student from the selected list
-      function removeStudent(studentId) {
-        var selectedRow = selectedStudentsList.querySelector('tr[data-id="' + studentId + '"]');
-        if (selectedRow) {
-          selectedRow.remove();
-          // Remove student ID from the list
-          removeStudentId(studentId);
-        }
-      }
-  
-      // Function to add a student ID to the selected students input field
-      function addStudentId(studentId) {
-        var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+  .container {
+    display: flex;
+    justify-content: center;
+  }
+
+  .student-selection-wrapper {
+    margin: 10px auto;
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+  }
+
+  .student-list-container {
+    border: 5px solid #ccc;
+    border-radius: 4px;
+    margin-right: 10px;
+    width: calc(50% - 10px);
+  }
+
+  .student-table {
+    width: 100%;
+    margin-bottom: 0;
+    border: 5px solid #ccc;
+  }
+
+  /* Hide student row on selection */
+  .all-students-list tr[data-selected="true"] {
+    display: none;
+  }
+
+  #groups-container {
+    display: flex;
+    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-grow: 1;
+  }
+
+  #groups-container div {
+    margin-top: 10px;
+    border: 5px solid #ccc;
+    border-radius: 4px;
+    width: calc(200px);
+    margin-right: 10px;
+  }
+</style>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var workshopForm = document.getElementById('workshop-form');
+    var allStudents = workshopForm.querySelector('.all-students-list');
+    var selectedStudentsInput = workshopForm.querySelector('#selected-students');
+    var groupDataInput = workshopForm.querySelector('#group-data');
+    var groupsContainer = document.getElementById('groups-container');
+
+    // Function to add a student ID to the selected students input field
+    function addStudentId(studentId) {
+      var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+      if (!currentIds.includes(studentId)) {
         currentIds.push(studentId);
+      }
+      selectedStudentsInput.value = JSON.stringify(currentIds);
+    }
+
+    // Function to remove a student ID from the selected students input field
+    function removeStudentId(studentId) {
+      var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+      var index = currentIds.indexOf(studentId);
+      if (index !== -1) {
+        currentIds.splice(index, 1);
         selectedStudentsInput.value = JSON.stringify(currentIds);
       }
-  
-      // Function to remove a student ID from the selected students input field
-      function removeStudentId(studentId) {
-        var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
-        var index = currentIds.indexOf(studentId);
-        if (index !== -1) {
-          currentIds.splice(index, 1);
-          selectedStudentsInput.value = JSON.stringify(currentIds);
-        }
+    }
+
+    // Function to remove a student from the "No group" table
+    function removeStudentFromNoGroup(studentId) {
+      var studentRow = allStudents.querySelector('tr[data-id="' + studentId + '"]');
+      if (studentRow) {
+        studentRow.remove();
       }
-  
-      // Event listener to move a student back to the first list when clicked
-      selectedStudentsList.addEventListener('click', function (event) {
-        if (event.target.tagName === 'TD') {
-          var studentId = event.target.parentElement.dataset.id;
-          var studentName = event.target.textContent;
-  
-          // Remove student from the selected list
-          removeStudent(studentId);
-  
-          // Mark student row as unselected for showing in the first list
-          var unselectedRow = allStudents.querySelector('tr[data-id="' + studentId + '"]');
-          if (unselectedRow) {
-            unselectedRow.dataset.selected = "false";
-          }
-        }
+    }
+
+    // Event listener to add groups
+    var addGroupsBtn = document.getElementById('add-groups-btn');
+    var numGroupsInput = document.getElementById('num-groups');
+
+    addGroupsBtn.addEventListener('click', function () {
+      var numGroups = parseInt(numGroupsInput.value);
+      var students = Array.from(allStudents.querySelectorAll('tr[data-id]')).map(function (row) {
+        return { id: row.dataset.id, first_name: row.cells[0].textContent };
       });
-  
-      // Event listener to add a student to the selected list when clicked
-      allStudents.addEventListener('click', function (event) {
-        if (event.target.tagName === 'TD') {
-          var studentId = event.target.parentElement.dataset.id;
-          var studentName = event.target.textContent;
-  
-          var existingStudent = selectedStudentsList.querySelector('td:first-child');
-          if (!existingStudent || existingStudent.textContent !== studentName) {
-            // Add student to the selected list
-            addStudent(studentId, studentName);
-  
-            // Mark student row as selected for hiding
-            event.target.parentElement.dataset.selected = "true";
-          }
-        }
-      });
-  
-      // Form submission validation
-      workshopForm.addEventListener('submit', function (event) {
-        if (selectedStudentsList.children.length === 0) {
-          event.preventDefault();
-          alert('Please select at least one student.');
-        }
-      });
+
+      var groups = divideStudentsIntoGroups(students, numGroups);
+      displayGroups(groups);
+      groupDataInput.value = JSON.stringify(groups.map(group => group.map(student => student.id)));
     });
-  </script>
-  
+
+    function divideStudentsIntoGroups(students, numGroups) {
+      var groups = Array.from({ length: numGroups }, () => []);
+      var shuffledStudents = shuffleArray(students);
+
+      shuffledStudents.forEach(function (student, index) {
+        var groupIndex = index % numGroups;
+        groups[groupIndex].push(student);
+        removeStudentFromNoGroup(student.id); // Remove student from "No group" table
+      });
+
+      return groups;
+    }
+
+    function displayGroups(groups) {
+      groupsContainer.innerHTML = ''; // Clear previous groups
+      groups.forEach(function (group, index) {
+        var groupDiv = document.createElement('div');
+        groupDiv.innerHTML = '<h3>Group ' + String.fromCharCode(65 + index) + '</h3><table class="table student-table table-bordered"></table>';
+        var tableBody = groupDiv.querySelector('table').createTBody();
+        group.forEach(function (student) {
+          var row = tableBody.insertRow();
+          var cell = row.insertCell();
+          cell.textContent = student.first_name;
+          addStudentId(student.id); // Add student to selected students
+          // Event listener to remove student from group and add back to "No group" table
+          row.addEventListener('click', function () {
+            removeStudentId(student.id);
+            tableBody.removeChild(row); // Remove row from group table
+            allStudents.appendChild(createStudentRow(student)); // Add row to "No group" table
+          });
+        });
+        groupsContainer.appendChild(groupDiv);
+      });
+    }
+
+    function createStudentRow(student) {
+      var row = document.createElement('tr');
+      row.dataset.id = student.id;
+      var cell = row.insertCell();
+      cell.textContent = student.first_name;
+      return row;
+    }
+
+    function shuffleArray(array) {
+      for (var i = array.length - 1; i > 0; i--) {
+        var j = Math.floor(Math.random() * (i + 1));
+        [array[i], array[j]] = [array[j], array[i]];
+      }
+      return array;
+    }
+
+    // Form submission validation
+    workshopForm.addEventListener('submit', function (event) {
+      if (selectedStudentsInput.value === '[]') {
+        event.preventDefault();
+        alert('Please select at least one student.');
+      }
+    });
+  });
+</script>
+
 {% endblock %}

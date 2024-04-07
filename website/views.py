@@ -373,6 +373,10 @@ def enroll_student(workshop_id):
     db.session.commit()
     return redirect(url_for('workshop_details', workshop_id=workshop_id))
 
+from flask import request, render_template, flash, redirect, url_for
+from datetime import datetime
+import json
+
 @views.route('/add_workshop', methods=['GET', 'POST'])
 @login_required
 def add_workshop():
@@ -383,14 +387,19 @@ def add_workshop():
 
         try:
             formatted_date = datetime.strptime(date, '%Y-%m-%dT%H:%M')
+            num_groups = int(request.form['num_groups'])
+            group_data = json.loads(request.form['group_data'])
+
             new_workshop = Workshop(title=title, date=formatted_date, lecturer_id=current_user.id)
             db.session.add(new_workshop)
             db.session.commit()
 
-            # Enroll selected students in the workshop
-            for student_id in selected_students:
-                enrollment = Enrollment(student_id=student_id, workshop_id=new_workshop.id)
-                db.session.add(enrollment)
+            for group_index, group_students in enumerate(group_data):
+                for student_id in group_students:
+                    # Append group number to the workshop ID
+                    workshop_id_with_group = f"{new_workshop.id}.{group_index + 1}"
+                    enrollment = Enrollment(student_id=student_id, workshop_id=workshop_id_with_group)
+                    db.session.add(enrollment)
             db.session.commit()
 
             flash('Workshop created successfully with selected students enrolled.', 'success')
