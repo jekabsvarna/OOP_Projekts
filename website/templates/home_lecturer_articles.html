@@ -79,7 +79,7 @@
     </div>
 </div>
 
-
+<h2>Articles</h2>
 <!-- Dropdown for selecting number of articles -->
 <form method="GET">
     <label for="num_articles">Articles per page:</label>
@@ -92,9 +92,8 @@
         <option value="100" {% if request.args.get('num_articles', default='10') == '100' %} selected {% endif %}>100</option>
     </select>
 </form>
-
+<p></p>
 <div class="articles-list">
-    <h2>Articles</h2>
     <table>
         <thead>
             <tr>
