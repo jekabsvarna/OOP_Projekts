@@ -4,6 +4,82 @@
 
 {% block content %}
 
+<style>
+
+    /* Style for delete button */
+    .delete-button {
+        background-color: rgb(102, 102, 102); 
+        color: #ffffff; /* White text */
+        border: none;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
+
+    .button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    }
+
+    .upload-container, .delete-container {
+    width: 48%; /* Adjust width as needed */
+    }
+
+    .upload-container h2 {
+    margin: 4;
+    }
+
+/* Style for delete all button */
+    .delete-all-button {
+    background-color: rgb(102, 102, 102);
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    }
+
+    /* Style for import button */
+    .upload-container button {
+    background-color: rgb(102, 102, 102);
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px; /* Adjust margin as needed */
+    }
+</style>
+
+<div class="button-container">
+    <div class="upload-container">
+        <h2>Upload Articles</h2>
+        <form action="{{ url_for('views.upload_articles') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="articles_xlsx" accept=".xlsx">
+            <button type="submit" class="btn btn-primary">Upload</button>
+        </form>
+    </div>    
+    <div class="delete-container">
+        <button class="delete-all-button" onclick="deleteAllArticles()">Delete All Articles</button>
+    </div>
+</div>
+
+
 <!-- Dropdown for selecting number of articles -->
 <form method="GET">
     <label for="num_articles">Articles per page:</label>
@@ -32,12 +108,15 @@
             <tr id="article-{{ article.id }}" data-article-id="{{ article.id }}" {% if article.taken %}data-status="taken" data-owner="{{ article.owner_id }}"{% else %}data-status="available" data-owner=""{% endif %}>
                 <td>{{ article.id }}</td>
                 <td class="article-status">
-                    {% if article.taken %}
-                        <img src="../static/finger_side.png" alt="Article Taken" />
-                    {% else %}
-                        <img src="../static/finger_up.png" alt="Article Available" />
-                    {% endif %}
-                </td>
+                    <div style="display: flex; align-items: center;">
+                        {% if article.taken %}
+                            <img src="../static/finger_side.png" alt="Article Taken" />
+                        {% else %}
+                            <img src="../static/finger_up.png" alt="Article Available" />
+                        {% endif %}
+                        <button class="delete-button" onclick="deleteArticle({{ article.id }})">Delete</button>
+                    </div>
+                </td>                
                 <td class="article-name {% if article.taken and article.owner_id == current_user.id %}your-article{% endif %}">
                     {{ article.name }} {% if article.taken and article.owner_id == current_user.id %}(Your article){% endif %}
                 </td>
@@ -75,6 +154,45 @@
             }
         });
     });
+
+    function deleteAllArticles() {
+        if (confirm("Are you sure you want to delete all articles?")) {
+            fetch(`/delete_all_articles`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the page after deletion
+                    location.reload();
+                } else {
+                    alert("Failed to delete all articles.");
+                }
+            })
+        }
+    }
+
+    function deleteArticle(articleId) {
+    if (confirm("Are you sure you want to delete this article?")) {
+        fetch(`/delete_article/${articleId}`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+        })
+        .then(response => {
+            if (response.ok) {
+                // Remove the row from the table
+                document.getElementById(`article-${articleId}`).remove();
+            } else {
+                alert("Failed to delete the article.");
+            }
+        })
+    }
+}
+
 </script>
 
 {% endblock %}

@@ -4,12 +4,4 @@
 
 <h2>Welcome, {{ user.first_name }}  !!!</h2>
 
-<div class="upload-container">
-    <h2>Upload Articles</h2>
-    <form action="{{ url_for('views.upload_articles') }}" method="post" enctype="multipart/form-data">
-        <input type="file" name="articles_xlsx" accept=".xlsx">
-        <button type="submit" class="btn btn-primary">Upload</button>
-    </form>
-</div>
-
       {%  endblock %}

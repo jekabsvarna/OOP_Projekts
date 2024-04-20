@@ -449,3 +449,27 @@ def delete_all_students():
         db.session.rollback()
         return jsonify({'error': 'An error occurred while deleting all students.'}), 500
 
+@views.route('/delete_all_articles', methods=['DELETE'])
+@login_required
+def delete_all_articles():
+    try:
+        Article.query.delete()
+        db.session.commit()
+        return jsonify({'message': 'All articles deleted successfully'}), 200
+    except Exception as e:
+        print(f"An error occurred while deleting all articles: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred while deleting all articles.'}), 500
+
+@views.route('/delete_article/<int:article_id>', methods=['DELETE'])
+@login_required
+def delete_article(article_id):
+    article = Article.query.get_or_404(article_id)
+    try:
+        db.session.delete(article)
+        db.session.commit()
+        return jsonify({'message': 'Article deleted successfully'}), 200
+    except Exception as e:
+        print(f"An error occurred while deleting the article: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred while deleting the article.'}), 500
