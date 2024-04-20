@@ -26,6 +26,21 @@
     .students-list tbody tr:hover {
     background-color: #f2f2f2; /* Hover effect for rows */
     }
+
+    /* Style for delete button */
+    .delete-button {
+        background-color: rgb(102, 102, 102); /* Red background */
+        color: #ffffff; /* White text */
+        border: none;
+        padding: 5px 10px;
+        text-align: center;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 14px;
+        margin: 4px 2px;
+        cursor: pointer;
+        border-radius: 4px;
+    }
 </style>
 
 <!-- Dropdown for selecting number of students -->
@@ -51,7 +66,7 @@
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Role</th>
+                <th>Action</th> <!-- Added column for delete button -->
             </tr>
         </thead>
         <tbody>
@@ -59,11 +74,11 @@
             <tr>
                 <td>{{ student.first_name }}</td>
                 <td>{{ student.email }}</td>
-                <td>{{ student.role }}</td>
+                <td><button class="delete-button" onclick="deleteStudent({{ student.id }})">Delete</button></td> <!-- Added delete button -->
             </tr>
             {% else %}
             <tr>
-                <td colspan="3">No students found.</td>
+                <td colspan="4">No students found.</td> <!-- Adjusted colspan for the additional column -->
             </tr>
             {% endfor %}
         </tbody>
@@ -79,5 +94,26 @@
     <a href="{{ next_url }}" class="btn btn-primary">Next Page &raquo;</a>
     {% endif %}
 </div>
+
+<script>
+    function deleteStudent(studentId) {
+        if (confirm("Are you sure you want to delete this student?")) {
+            fetch(`/delete_student/${studentId}`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Remove the row from the table
+                    document.getElementById(`student-${studentId}`).remove();
+                } else {
+                    alert("Failed to delete student.");
+                }
+            })
+        }
+    }
+</script>
 
 {% endblock %}

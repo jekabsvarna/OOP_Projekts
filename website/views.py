@@ -10,6 +10,7 @@ from flask import request
 import openpyxl, json
 from math import ceil
 from datetime import datetime
+from sqlalchemy.exc import SQLAlchemyError
 
 
 views = Blueprint('views', __name__)
@@ -373,10 +374,6 @@ def enroll_student(workshop_id):
     db.session.commit()
     return redirect(url_for('workshop_details', workshop_id=workshop_id))
 
-from flask import request, render_template, flash, redirect, url_for
-from datetime import datetime
-import json
-
 @views.route('/add_workshop', methods=['GET', 'POST'])
 @login_required
 def add_workshop():
@@ -417,3 +414,16 @@ def add_workshop():
     # If GET request or no form submission
     students = User.query.filter_by(role='student').all()
     return render_template('add_workshop.html', students=students)
+
+@views.route('/delete_student/<int:student_id>', methods=['DELETE'])
+@login_required
+def delete_student(student_id):
+    student = User.query.get_or_404(student_id)
+    try:
+        db.session.delete(student)
+        db.session.commit()
+        return jsonify({'message': 'Student deleted successfully'}), 200
+    except Exception as e:
+        print(f"An error occurred while deleting student: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred while deleting student.'}), 500
