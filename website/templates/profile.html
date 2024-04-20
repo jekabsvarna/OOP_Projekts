@@ -3,50 +3,79 @@
 
 {% block content %}
 
-<div class="container d-flex justify-content-center align-items-center ">
+<div class="container">
   <div class="login-wrapper">
     <h2>Profile Information:</h2>
-      <div class="profile-item">
-        <p>
-          <span class="column-header">Name and Surname:</span>
-          <span id="name">{{ user.first_name }}</span> 
-          <button onclick="edit('name')">Change</button>
-        </p>
-        <div id="name-edit" style="display: none;">
-          <form action="{{ url_for('views.update_name') }}" method="POST">
-            <input type="text" name="name" value="{{ user.first_name }}">
-            <button type="submit">Save</button>
-          </form>
-        </div>
-      </div>
 
-      <div class="profile-item">
-        <p>
-          <span class="column-header">Email:</span>
-          <span id="email">{{ user.email }}</span> 
-          <button onclick="edit('email')">Change</button>
-        </p>
-        <div id="email-edit" style="display: none;">
-          <form action="{{ url_for('views.update_email') }}" method="POST">
-            <input type="email" name="email" value="{{ user.email }}">
-            <button type="submit">Save</button>
-          </form>
-        </div>
+    <div class="profile-item">
+      <p>
+        <span class="column-header">Name and Surname:</span>
+        <span id="name">{{ user.first_name }}</span>&nbsp;&nbsp;&nbsp;&nbsp; 
+        <button onclick="edit('name')">Change</button>
+      </p>
+      <div id="name-edit" style="display: none;">
+        <form action="{{ url_for('views.update_name') }}" method="POST">
+          <input type="text" name="name" value="{{ user.first_name }}">
+          <button type="submit">Save</button>
+        </form>
       </div>
+    </div>
 
-      <div class="profile-item">
-        <p>
-          <span class="column-header">Password:</span>
-          <span id="password" style="display: none;">{{ user.password }}</span><span id="password-mask">********</span> <button onclick="togglePassword()">Show Password</button> <button onclick="edit('password')">Change</button>
-        </p>
-        <div id="password-edit" style="display: none;">
-          <form action="{{ url_for('views.update_password') }}" method="POST"> <input type="password" name="password">
-            <button type="submit">Save</button>
-          </form>
-        </div>
+    <div class="profile-item">
+      <p>
+        <span class="column-header">Email:</span>
+        <span id="email">{{ user.email }}</span>&nbsp;&nbsp;&nbsp;&nbsp; 
+        <button onclick="edit('email')">Change</button>
+      </p>
+      <div id="email-edit" style="display: none;">
+        <form action="{{ url_for('views.update_email') }}" method="POST">
+          <input type="email" name="email" value="{{ user.email }}">
+          <button type="submit">Save</button>
+        </form>
       </div>
+    </div>
+
+    <div class="profile-item">
+      <p>
+        <span class="column-header">Password:</span>
+        <span id="password" style="display: none;">{{ user.password }}</span><span id="password-mask">********</span>&nbsp;&nbsp;&nbsp;&nbsp; 
+        <button onclick="edit('password')">Change</button>
+        <button onclick="togglePassword()">Show Password</button>&nbsp;&nbsp;&nbsp;&nbsp; 
+      </p>
+      <div id="password-edit" style="display: none;">
+        <form action="{{ url_for('views.update_password') }}" method="POST">
+          <input type="password" name="password">
+          <button type="submit">Save</button>
+        </form>
+      </div>
+    </div>
   </div>
 </div>
+
+<style>
+  .container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .login-wrapper {
+    text-align: center;
+  }
+
+  .profile-item {
+    text-align: left;
+    margin-bottom: 40px;
+  }
+
+  .profile-item p {
+    margin: 0;
+  }
+
+  .profile-item button {
+    float: right;
+  }
+</style>
 
 <script>
   function edit(field) {
