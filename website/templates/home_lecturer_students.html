@@ -5,31 +5,31 @@
 {% block content %}
 <style>
     .students-list table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px; /* Add margin between table and other content */
+        width: 100%;
+        border-collapse: collapse;
+        margin-bottom: 20px; /* Add margin between table and other content */
     }
 
     .students-list th, .students-list td {
-    border: 1px solid #ddd; /* Add border to table cells */
-    padding: 8px; /* Add padding to table cells */
+        border: 1px solid #ddd; /* Add border to table cells */
+        padding: 8px; /* Add padding to table cells */
     }
 
     .students-list th {
-    background-color: #f2f2f2; /* Light grey background for header */
+        background-color: #f2f2f2; /* Light grey background for header */
     }
 
     .students-list tbody tr:nth-child(even) {
-    background-color: #f9f9f9; /* Even rows have slightly darker background */
+        background-color: #f9f9f9; /* Even rows have slightly darker background */
     }
 
     .students-list tbody tr:hover {
-    background-color: #f2f2f2; /* Hover effect for rows */
+        background-color: #f2f2f2; /* Hover effect for rows */
     }
 
     /* Style for delete button */
     .delete-button {
-        background-color: rgb(102, 102, 102); /* Red background */
+        background-color: rgb(102, 102, 102); 
         color: #ffffff; /* White text */
         border: none;
         padding: 5px 10px;
@@ -41,7 +41,66 @@
         cursor: pointer;
         border-radius: 4px;
     }
+
+    .button-container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    }
+
+    .upload-container, .delete-container {
+    width: 48%; /* Adjust width as needed */
+    }
+
+    .upload-container h3 {
+    margin: 4;
+    }
+
+/* Style for delete all button */
+    .delete-all-button {
+    background-color: rgb(102, 102, 102);
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    }
+
+    /* Style for import button */
+    .upload-container button {
+    background-color: rgb(102, 102, 102);
+    color: #ffffff; /* White text */
+    border: none;
+    padding: 10px 20px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    cursor: pointer;
+    border-radius: 4px;
+    margin-top: 10px; /* Adjust margin as needed */
+    }
 </style>
+
+<div class="button-container">
+    <div class="upload-container">
+        <h3>Import Students</h3>
+        <form action="{{ url_for('views.import_students') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="students_xlsx" accept=".xlsx">
+            <button type="submit" class="btn btn-primary">Import</button>
+        </form>
+    </div>
+    <div class="delete-container">
+        <button class="delete-all-button" onclick="deleteAllStudents()">Delete All Students</button>
+    </div>
+</div>
+
+
 
 <!-- Dropdown for selecting number of students -->
 <div class="students-per-page">
@@ -78,7 +137,7 @@
             </tr>
             {% else %}
             <tr>
-                <td colspan="4">No students found.</td> <!-- Adjusted colspan for the additional column -->
+                <td colspan="3">No students found.</td> <!-- Adjusted colspan for the additional column -->
             </tr>
             {% endfor %}
         </tbody>
@@ -110,6 +169,25 @@
                     document.getElementById(`student-${studentId}`).remove();
                 } else {
                     alert("Failed to delete student.");
+                }
+            })
+        }
+    }
+
+    function deleteAllStudents() {
+        if (confirm("Are you sure you want to delete all students?")) {
+            fetch(`/delete_all_students`, {
+                method: 'DELETE',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+            })
+            .then(response => {
+                if (response.ok) {
+                    // Reload the page after deletion
+                    location.reload();
+                } else {
+                    alert("Failed to delete all students.");
                 }
             })
         }

@@ -13,6 +13,7 @@ from datetime import datetime
 from sqlalchemy.exc import SQLAlchemyError
 
 
+
 views = Blueprint('views', __name__)
 
 @views.route('/home_admin')
@@ -427,3 +428,24 @@ def delete_student(student_id):
         print(f"An error occurred while deleting student: {str(e)}")
         db.session.rollback()
         return jsonify({'error': 'An error occurred while deleting student.'}), 500
+
+@views.route('/delete_all_students', methods=['DELETE'])
+@login_required
+def delete_all_students():
+    try:
+        # Get all students
+        students = User.query.filter_by(role='student').all()
+        
+        # Delete each student
+        for student in students:
+            db.session.delete(student)
+        
+        # Commit changes to the database
+        db.session.commit()
+        
+        return jsonify({'message': 'All students deleted successfully'}), 200
+    except Exception as e:
+        print(f"An error occurred while deleting all students: {str(e)}")
+        db.session.rollback()
+        return jsonify({'error': 'An error occurred while deleting all students.'}), 500
+
