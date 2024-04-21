@@ -97,7 +97,9 @@ try:
     cur.execute('''
     CREATE TABLE article (
         id INTEGER PRIMARY KEY,
-        name VARCHAR(255) UNIQUE
+        name VARCHAR(255) UNIQUE,
+        student_id INTEGER,
+        FOREIGN KEY (student_id) REFERENCES user (id)
     );
     ''')
     print('Created article table!')
