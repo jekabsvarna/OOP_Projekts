@@ -80,7 +80,21 @@
     border-radius: 4px;
     width: calc(200px);
     margin-right: 10px;
-  }
+    }
+    .group-div {
+    cursor: pointer;
+    border: 2px solid #ccc;
+    padding: 5px;
+    margin: 5px;
+    }
+
+  .group-div.selected-group {
+    border-color: blue;
+    }
+
+  .group-div:hover {
+    border-color: darkgray;
+    }
 </style>
 
 <script>
@@ -88,10 +102,100 @@
     var workshopForm = document.getElementById('workshop-form');
     var allStudents = workshopForm.querySelector('.all-students-list');
     var selectedStudentsInput = workshopForm.querySelector('#selected-students');
-    var groupDataInput = workshopForm.querySelector('#group-data');
     var groupsContainer = document.getElementById('groups-container');
-
-    // Function to add a student ID to the selected students input field
+    var addGroupsBtn = document.getElementById('add-groups-btn');
+    var autoAssignBtn = document.createElement('button'); // Button for auto-assign
+    var numGroupsInput = document.getElementById('num-groups');
+  
+    autoAssignBtn.textContent = "Auto Assign Students";
+    autoAssignBtn.type = "button";
+    autoAssignBtn.style.marginTop = "10px";
+    workshopForm.appendChild(autoAssignBtn); // Append auto-assign button to the form
+  
+    addGroupsBtn.addEventListener('click', function () {
+      createEmptyGroups(parseInt(numGroupsInput.value));
+    });
+  
+    autoAssignBtn.addEventListener('click', function () {
+      autoAssignStudents();
+    });
+  
+    function createEmptyGroups(numGroups) {
+      groupsContainer.innerHTML = ''; // Clear previous groups
+      for (let i = 0; i < numGroups; i++) {
+        var groupDiv = document.createElement('div');
+        groupDiv.className = 'group-div';
+        groupDiv.innerHTML = `<h3>Group ${String.fromCharCode(65 + i)}</h3>
+                              <table class="table student-table table-bordered"><tbody></tbody></table>`;
+        groupsContainer.appendChild(groupDiv);
+      }
+    }
+  
+    function autoAssignStudents() {
+      var studentRows = Array.from(allStudents.querySelectorAll('tr'));
+      var groups = document.querySelectorAll('.group-div tbody');
+      var studentsPerGroup = Math.ceil(studentRows.length / groups.length);
+      studentRows.forEach((row, index) => {
+        var groupIndex = Math.floor(index / studentsPerGroup) % groups.length;
+        manuallyAssignStudentToGroup(row.dataset.id, row.cells[0].textContent, groups[groupIndex]);
+      });
+    }
+  
+    allStudents.addEventListener('click', function(event) {
+      var clickedRow = event.target.closest('tr');
+      if (clickedRow) {
+        var studentId = clickedRow.dataset.id;
+        var studentName = clickedRow.cells[0].textContent;
+        assignStudentToNextGroup(studentId, studentName);
+      }
+    });
+  
+    document.addEventListener('click', function(event) {
+      if (event.target.matches('.group-div td')) {
+        var studentRow = event.target.closest('tr');
+        removeStudentFromGroup(studentRow);
+      }
+    });
+  
+    function assignStudentToNextGroup(studentId, studentName) {
+      var groups = Array.from(document.querySelectorAll('.group-div tbody'));
+      var groupIndex = nextGroupIndex(groups);
+      manuallyAssignStudentToGroup(studentId, studentName, groups[groupIndex]);
+    }
+  
+    function nextGroupIndex(groups) {
+      return groups.reduce((smallestIndex, currentGroup, currentIndex) => {
+        if (currentGroup.rows.length < groups[smallestIndex].rows.length) {
+          return currentIndex;
+        }
+        return smallestIndex;
+      }, 0);
+    }
+  
+    function manuallyAssignStudentToGroup(studentId, studentName, group) {
+      var row = group.insertRow();
+      var cell = row.insertCell();
+      cell.textContent = studentName;
+      row.dataset.id = studentId; // Important for identifying the student for removal
+      addStudentId(studentId);
+      document.querySelector(`tr[data-id="${studentId}"]`).remove(); // Remove student from "No group" table
+    }
+  
+    function removeStudentFromGroup(studentRow) {
+      var studentId = studentRow.dataset.id;
+      var studentName = studentRow.cells[0].textContent;
+      addStudentBackToList(studentId, studentName);
+      studentRow.remove();
+      removeStudentId(studentId);
+    }
+  
+    function addStudentBackToList(studentId, studentName) {
+      var row = allStudents.insertRow();
+      var cell = row.insertCell();
+      cell.textContent = studentName;
+      row.dataset.id = studentId;
+    }
+  
     function addStudentId(studentId) {
       var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
       if (!currentIds.includes(studentId)) {
@@ -99,99 +203,20 @@
       }
       selectedStudentsInput.value = JSON.stringify(currentIds);
     }
-
-    // Function to remove a student ID from the selected students input field
+  
     function removeStudentId(studentId) {
-      var currentIds = selectedStudentsInput.value ? JSON.parse(selectedStudentsInput.value) : [];
+      var currentIds = JSON.parse(selectedStudentsInput.value);
       var index = currentIds.indexOf(studentId);
       if (index !== -1) {
         currentIds.splice(index, 1);
         selectedStudentsInput.value = JSON.stringify(currentIds);
       }
     }
-
-    // Function to remove a student from the "No group" table
-    function removeStudentFromNoGroup(studentId) {
-      var studentRow = allStudents.querySelector('tr[data-id="' + studentId + '"]');
-      if (studentRow) {
-        studentRow.remove();
-      }
-    }
-
-    // Event listener to add groups
-    var addGroupsBtn = document.getElementById('add-groups-btn');
-    var numGroupsInput = document.getElementById('num-groups');
-
-    addGroupsBtn.addEventListener('click', function () {
-      var numGroups = parseInt(numGroupsInput.value);
-      var students = Array.from(allStudents.querySelectorAll('tr[data-id]')).map(function (row) {
-        return { id: row.dataset.id, first_name: row.cells[0].textContent };
-      });
-
-      var groups = divideStudentsIntoGroups(students, numGroups);
-      displayGroups(groups);
-      groupDataInput.value = JSON.stringify(groups.map(group => group.map(student => student.id)));
-    });
-
-    function divideStudentsIntoGroups(students, numGroups) {
-      var groups = Array.from({ length: numGroups }, () => []);
-      var shuffledStudents = shuffleArray(students);
-
-      shuffledStudents.forEach(function (student, index) {
-        var groupIndex = index % numGroups;
-        groups[groupIndex].push(student);
-        removeStudentFromNoGroup(student.id); // Remove student from "No group" table
-      });
-
-      return groups;
-    }
-
-    function displayGroups(groups) {
-      groupsContainer.innerHTML = ''; // Clear previous groups
-      groups.forEach(function (group, index) {
-        var groupDiv = document.createElement('div');
-        groupDiv.innerHTML = '<h3>Group ' + String.fromCharCode(65 + index) + '</h3><table class="table student-table table-bordered"></table>';
-        var tableBody = groupDiv.querySelector('table').createTBody();
-        group.forEach(function (student) {
-          var row = tableBody.insertRow();
-          var cell = row.insertCell();
-          cell.textContent = student.first_name;
-          addStudentId(student.id); // Add student to selected students
-          // Event listener to remove student from group and add back to "No group" table
-          row.addEventListener('click', function () {
-            removeStudentId(student.id);
-            tableBody.removeChild(row); // Remove row from group table
-            allStudents.appendChild(createStudentRow(student)); // Add row to "No group" table
-          });
-        });
-        groupsContainer.appendChild(groupDiv);
-      });
-    }
-
-    function createStudentRow(student) {
-      var row = document.createElement('tr');
-      row.dataset.id = student.id;
-      var cell = row.insertCell();
-      cell.textContent = student.first_name;
-      return row;
-    }
-
-    function shuffleArray(array) {
-      for (var i = array.length - 1; i > 0; i--) {
-        var j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-      return array;
-    }
-
-    // Form submission validation
-    workshopForm.addEventListener('submit', function (event) {
-      if (selectedStudentsInput.value === '[]') {
-        event.preventDefault();
-        alert('Please select at least one student.');
-      }
-    });
   });
-</script>
+  </script>
+  
+  
+  
+  
 
 {% endblock %}

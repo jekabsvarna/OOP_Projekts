@@ -379,14 +379,24 @@ def enroll_student(workshop_id):
 @login_required
 def add_workshop():
     if request.method == 'POST':
-        title = request.form['title']
-        date = request.form['date']
-        selected_students = json.loads(request.form['students'])  # Get list of selected student IDs
+        title = request.form.get('title', '')
+        date_str = request.form.get('date', '')
+        students_json = request.form.get('students', '[]')  # Default to empty list as JSON
+        group_data_json = request.form.get('group_data', '[]')  # Default to empty list as JSON
+
+        # Debug print statements to check what's received
+        print(f"Received date: {date_str}")
+        print(f"Received students JSON: {students_json}")
+        print(f"Received group data JSON: {group_data_json}")
+
+        if not title or not date_str:
+            flash('Title and date are required.', 'error')
+            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
 
         try:
-            formatted_date = datetime.strptime(date, '%Y-%m-%dT%H:%M')
-            num_groups = int(request.form['num_groups'])
-            group_data = json.loads(request.form['group_data'])
+            formatted_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
+            selected_students = json.loads(students_json)
+            group_data = json.loads(group_data_json) if group_data_json else []
 
             new_workshop = Workshop(title=title, date=formatted_date, lecturer_id=current_user.id)
             db.session.add(new_workshop)
@@ -394,25 +404,29 @@ def add_workshop():
 
             for group_index, group_students in enumerate(group_data):
                 for student_id in group_students:
-                    # Append group number to the workshop ID
                     workshop_id_with_group = f"{new_workshop.id}.{group_index + 1}"
                     enrollment = Enrollment(student_id=student_id, workshop_id=workshop_id_with_group)
                     db.session.add(enrollment)
             db.session.commit()
 
             flash('Workshop created successfully with selected students enrolled.', 'success')
-            return redirect(url_for('views.home_lecturer')) 
-        except ValueError as e:
-            print(f"Error parsing date: {e}")
-            flash('Invalid date format. Please use YYYY-MM-DDTHH:MM format.', 'error')
-            return render_template('add_workshop.html')
+            return redirect(url_for('views.home_lecturer'))
+        
+        except ValueError as ve:
+            db.session.rollback()
+            flash(f'Error parsing date or JSON data: {ve}', 'error')
+            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
+        
+        except json.JSONDecodeError as je:
+            db.session.rollback()
+            flash(f'Invalid JSON format: {je}', 'error')
+            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
+        
         except Exception as e:
-            db.session.rollback()  # Rollback the transaction if any db error occurs
-            print(f"Error during database transaction: {e}")
-            flash('A database error occurred. Please try again.', 'error')
-            return render_template('add_workshop.html')
+            db.session.rollback()
+            flash(f'An error occurred during the transaction: {e}', 'error')
+            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
 
-    # If GET request or no form submission
     students = User.query.filter_by(role='student').all()
     return render_template('add_workshop.html', students=students)
 
