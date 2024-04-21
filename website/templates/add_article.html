@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}Add Article{% endblock %}
+
+{% block content %}
+
+<div class="container d-flex justify-content-center align-items-center">
+  <div class="login-wrapper">
+    <h3 class="text-center">Add Article</h3>
+    <form method="POST" action="{{ url_for('views.add_article') }}">
+      <div class="form-group">
+        <label for="article_name">Article Name</label>
+        <input type="text" class="form-control" id="article_name" name="article_name" placeholder="Enter article name" required/>
+      </div>
+      <button type="submit" class="btn btn-primary">Submit</button>
+    </form>
+  </div>
+</div>
+
+{% endblock %}

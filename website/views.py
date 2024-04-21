@@ -474,6 +474,7 @@ def delete_article(article_id):
         db.session.rollback()
         return jsonify({'error': 'An error occurred while deleting the article.'}), 500
 
+# Add single student
 @views.route('/add_student', methods=['GET', 'POST']) 
 @login_required
 def add_student():
@@ -507,3 +508,26 @@ def add_student():
     else:
         flash("You are not authorized to perform this action.", category='error')
         return redirect(url_for('views.home'))
+    
+# Add single article
+@views.route('/add_article', methods=['GET', 'POST'])
+@login_required
+def add_article():
+    if current_user.role in ['lecturer', 'admin']:  # Adjust role access as needed
+        if request.method == 'POST':
+            article_name = request.form.get('article_name')
+            new_article = Article(name=article_name)  # Make sure this matches your model
+            db.session.add(new_article)
+            try:
+                db.session.commit()
+                flash('Article added successfully!', category='success')
+                return redirect(url_for('views.home_lecturer_articles'))
+            except Exception as e:
+                db.session.rollback()
+                flash(f'Error adding article: {str(e)}', category='error')
+                return render_template('add_article.html')
+        return render_template('add_article.html')
+    else:
+        flash("You are not authorized to perform this action.", category='error')
+        return redirect(url_for('views.home'))
+
