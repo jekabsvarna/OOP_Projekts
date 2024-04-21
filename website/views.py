@@ -379,19 +379,16 @@ def enroll_student(workshop_id):
 @login_required
 def add_workshop():
     if request.method == 'POST':
-        title = request.form.get('title', '')
-        date_str = request.form.get('date', '')
-        students_json = request.form.get('students', '[]')  # Default to empty list as JSON
-        group_data_json = request.form.get('group_data', '[]')  # Default to empty list as JSON
-
-        # Debug print statements to check what's received
-        print(f"Received date: {date_str}")
-        print(f"Received students JSON: {students_json}")
-        print(f"Received group data JSON: {group_data_json}")
+        title = request.form.get('title')
+        date_str = request.form.get('date')
+        students_json = request.form.get('students', '[]')
+        group_data_json = request.form.get('group_data', '[]')
 
         if not title or not date_str:
-            flash('Title and date are required.', 'error')
-            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
+            flash('Both title and date must be provided.', 'error')
+            students = User.query.filter_by(role='student').all()
+            workshops = Workshop.query.all()
+            return render_template('add_workshop.html', students=students, workshops=workshops)
 
         try:
             formatted_date = datetime.strptime(date_str, '%Y-%m-%dT%H:%M')
@@ -409,26 +406,18 @@ def add_workshop():
                     db.session.add(enrollment)
             db.session.commit()
 
-            flash('Workshop created successfully with selected students enrolled.', 'success')
+            flash('Workshop created successfully.', 'success')
             return redirect(url_for('views.home_lecturer'))
-        
-        except ValueError as ve:
-            db.session.rollback()
-            flash(f'Error parsing date or JSON data: {ve}', 'error')
-            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
-        
-        except json.JSONDecodeError as je:
-            db.session.rollback()
-            flash(f'Invalid JSON format: {je}', 'error')
-            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
-        
+
         except Exception as e:
             db.session.rollback()
-            flash(f'An error occurred during the transaction: {e}', 'error')
-            return render_template('add_workshop.html', students=User.query.filter_by(role='student').all())
+            flash(f'An error occurred: {e}', 'error')
 
+    # Always fetch workshops and students to pass to the template
+    workshops = Workshop.query.all()
     students = User.query.filter_by(role='student').all()
-    return render_template('add_workshop.html', students=students)
+    return render_template('add_workshop.html', workshops=workshops, students=students)
+
 
 @views.route('/delete_student/<int:student_id>', methods=['DELETE'])
 @login_required

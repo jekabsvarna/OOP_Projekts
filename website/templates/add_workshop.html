@@ -27,6 +27,23 @@
             {% endfor %}
           </tbody>
         </table>
+        <div>
+          <h2>All Workshops</h2>
+          <table>
+              <tr>
+                  <th>Title</th>
+                  <th>Date</th>
+                  <th>Lecturer</th>
+              </tr>
+              {% for workshop in workshops %}
+              <tr>
+                  <td>{{ workshop.title }}</td>
+                  <td>{{ workshop.date }}</td>
+                  <td>{{ workshop.lecturer_id }}</td>
+              </tr>
+              {% endfor %}
+          </table>
+        </div>
       </div>
       <div id="groups-container" class="col-md-6 pl-0 d-flex flex-wrap"></div>
     </div>
@@ -36,6 +53,7 @@
 
     <button type="submit">Create Workshop</button>
   </form>
+
 </div>
 
 <style>
