@@ -473,3 +473,37 @@ def delete_article(article_id):
         print(f"An error occurred while deleting the article: {str(e)}")
         db.session.rollback()
         return jsonify({'error': 'An error occurred while deleting the article.'}), 500
+
+@views.route('/add_student', methods=['GET', 'POST']) 
+@login_required
+def add_student():
+    if current_user.role == 'lecturer':
+        if request.method == 'POST':
+            first_name = request.form.get('first_name')
+            last_name = request.form.get('last_name')
+            email = request.form.get('email')
+            password = request.form.get('password')
+            
+            # Hash the password for security
+            hashed_password = generate_password_hash(password, method='pbkdf2:sha256')
+            
+            # Create new User instance for student
+            new_student = User(email=email, first_name=first_name + " " + last_name, 
+                                password=hashed_password, role='student')
+            
+            # Add new lecturer to the database
+            db.session.add(new_student)
+            try:
+                db.session.commit()
+                flash('Student added successfully!', category='success')
+            except:
+                db.session.rollback()  # Roll back in case of errors
+                flash('Error adding student.', category='error')
+            
+            return redirect(url_for('views.home_lecturer_students')) # 'views.home_lecturer_students ??
+
+        # If GET request or no form submission
+        return render_template('add_student.html', user=current_user) 
+    else:
+        flash("You are not authorized to perform this action.", category='error')
+        return redirect(url_for('views.home'))
