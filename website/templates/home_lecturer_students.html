@@ -7,30 +7,29 @@
     .students-list table {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 20px; /* Add margin between table and other content */
+        margin-bottom: 20px; 
     }
 
     .students-list th, .students-list td {
-        border: 1px solid #ddd; /* Add border to table cells */
-        padding: 8px; /* Add padding to table cells */
+        border: 1px solid #ddd; 
+        padding: 8px; 
     }
 
     .students-list th {
-        background-color: #f2f2f2; /* Light grey background for header */
+        background-color: #f2f2f2; 
     }
 
     .students-list tbody tr:nth-child(even) {
-        background-color: #f9f9f9; /* Even rows have slightly darker background */
+        background-color: #f9f9f9; 
     }
 
     .students-list tbody tr:hover {
-        background-color: #f2f2f2; /* Hover effect for rows */
+        background-color: #f2f2f2; 
     }
 
-    /* Style for delete button */
     .delete-button {
         background-color: rgb(102, 102, 102); 
-        color: #ffffff; /* White text */
+        color: #ffffff; 
         border: none;
         padding: 5px 10px;
         text-align: center;
@@ -50,17 +49,16 @@
     }
 
     .upload-container, .delete-container {
-    width: 48%; /* Adjust width as needed */
+    width: 48%; 
     }
 
     .upload-container h3 {
     margin: 4;
     }
 
-/* Style for delete all button */
     .delete-all-button {
     background-color: rgb(102, 102, 102);
-    color: #ffffff; /* White text */
+    color: #ffffff; 
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -71,10 +69,9 @@
     border-radius: 4px;
     }
 
-    /* Style for import button */
     .upload-container button {
     background-color: rgb(102, 102, 102);
-    color: #ffffff; /* White text */
+    color: #ffffff; 
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -83,7 +80,7 @@
     font-size: 16px;
     cursor: pointer;
     border-radius: 4px;
-    margin-top: 10px; /* Adjust margin as needed */
+    margin-top: 10px; 
     }
 </style>
 
@@ -99,13 +96,11 @@
         <button class="delete-all-button" onclick="deleteAllStudents()">Delete All Students</button>
     </div>
 
-    <!-- Add Single student button -->
     <a href="{{ url_for('views.add_student') }}" class="delete-all-button">Add Student</a>    
 </div>
 
 
 <h2>List of Students</h2>
-<!-- Dropdown for selecting number of students -->
 <div class="students-per-page">
     <form method="GET">
         <label for="num_students">Students per page:</label>
@@ -120,14 +115,13 @@
     </form>
 </div>
 <p></p>
-<!-- Student List -->
 <div class="students-list">
     <table>
         <thead>
             <tr>
                 <th>Name</th>
                 <th>Email</th>
-                <th>Action</th> <!-- Added column for delete button -->
+                <th>Action</th> 
             </tr>
         </thead>
         <tbody>
@@ -135,18 +129,17 @@
             <tr>
                 <td>{{ student.first_name }}</td>
                 <td>{{ student.email }}</td>
-                <td><button class="delete-button" onclick="deleteStudent({{ student.id }})">Delete</button></td> <!-- Added delete button -->
+                <td><button class="delete-button" onclick="deleteStudent({{ student.id }})">Delete</button></td> 
             </tr>
             {% else %}
             <tr>
-                <td colspan="3">No students found.</td> <!-- Adjusted colspan for the additional column -->
+                <td colspan="3">No students found.</td> 
             </tr>
             {% endfor %}
         </tbody>
     </table>
 </div>
 
-<!-- Pagination Links -->
 <div class="pagination">
     {% if prev_url %}
     <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
@@ -167,7 +160,6 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Remove the row from the table
                     document.getElementById(`student-${studentId}`).remove();
                 } else {
                     alert("Failed to delete student.");
@@ -186,7 +178,6 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Reload the page after deletion
                     location.reload();
                 } else {
                     alert("Failed to delete all students.");

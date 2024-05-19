@@ -4,7 +4,6 @@
 
 {% block content %}
 
-<!-- Dropdown for selecting number of articles -->
 <form method="GET">
     <label for="num_articles">Articles per page:</label>
     <select name="num_articles" id="num_articles" onchange="this.form.submit()">
@@ -47,7 +46,6 @@
     </table>
 </div>
 
-<!-- Pagination Links -->
 <div class="pagination">
     {% if prev_url %}
     <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
@@ -115,10 +113,8 @@
             const articlesList = document.querySelector(".articles-list tbody");
             const articles = articlesList.children;
 
-            // Find the element that should be before the unselected article
             const referenceNode = articles[originalIndex];
 
-            // Insert the unselected article before the reference node
             articlesList.insertBefore(article, referenceNode.nextSibling);
         }
 

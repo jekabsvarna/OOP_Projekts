@@ -7,68 +7,68 @@
   <style>
     body {
       background-color: rgb(255, 255, 255);
-      display: flex; /* Enable flexbox layout */
-      min-height: 100vh; /* Set minimum body height for full viewport */
-      flex-direction: column; /* Stack content vertically */
-      font-family: Arial, sans-serif; /* Set font family to Arial */
+      display: flex; 
+      min-height: 100vh; 
+      flex-direction: column; 
+      font-family: Arial, sans-serif; 
       align-items: center;
-      justify-content: center; /* Center content horizontally as well */
+      justify-content: center; 
     }
 
     .container {
-      flex: 1; /* Allow content area to grow */
-      text-align: center; /* Center text and buttons within the content area */
+      flex: 1; 
+      text-align: center; 
       padding: 150px;
       margin-top: -40px;
     }
 
     .sidebar-buttons {
-      /* New class for buttons */
-      position: fixed; /* Fix buttons to the top */
-      top: 20px; /* Add space from the top */
-      left: 20px; /* Add space from the left */
-      display: flex; /* Enable flexbox layout for buttons */
-      align-items: center; /* Align buttons vertically */
+      
+      position: fixed; 
+      top: 20px; 
+      left: 20px; 
+      display: flex; 
+      align-items: center; 
     }
 
     .sidebar-buttons a,
     .btn-primary {
-      /* Style for sidebar buttons and login button */
-      margin-right: 10px; /* Add space between buttons */
-      padding: 5px 10px; /* Add padding for visual spacing */
-      border: 1px solid rgb(0, 0, 0); /* Add a border for better visibility */
-      background-color: transparent; /* Remove background color */
-      color: rgb(0, 0, 0); /* Set button text color */
-      text-decoration: none; /* Remove default underline */
-      cursor: pointer; /* Set cursor to pointer on hover */
+      
+      margin-right: 10px; 
+      padding: 5px 10px; 
+      border: 1px solid rgb(0, 0, 0); 
+      background-color: transparent; 
+      color: rgb(0, 0, 0); 
+      text-decoration: none; 
+      cursor: pointer; 
     }
 
     .logo {
-      position: absolute; /* Make logo position absolute */
-      top: 0; /* Place at the top of the head section */
-      left: 50%; /* Center logo horizontally */
-      transform: translateX(-50%); /* Adjust horizontal placement */
-      padding: 10px; /* Adjust logo height as desired */
-      width: 150px; /* Adjust logo width as desired */
+      position: absolute; 
+      top: 0; 
+      left: 50%; 
+      transform: translateX(-50%); 
+      padding: 10px;
+      width: 150px; 
       height: 100px;
     }
 
     .form-group {
-      margin-bottom: 15px; /* Add some space between input fields */
+      margin-bottom: 15px; 
     }
 
     .form-control {
-      display: block; /* Make input fields take up full width */
-      width: 300px; /* Set the desired width in pixels */
-      padding: 10px; /* Add padding for visual spacing */
-      border: 1px solid #000000; /* Add a border */
-      border-radius: 4px; /* Add rounded corners */
-      font-family: inherit; /* Inherit font family from body */
+      display: block; 
+      width: 300px; 
+      padding: 10px; 
+      border: 1px solid #000000; 
+      border-radius: 4px; 
+      font-family: inherit; 
     }
 
     .form-label {
-      display: block; /* Display labels on their own lines */
-      margin-bottom: 5px; /* Add some space after labels */
+      display: block; 
+      margin-bottom: 5px; 
     }
 
     .error-message {
@@ -79,40 +79,40 @@
       color: rgb(255, 255, 255);
       padding: 10px;
       border-radius: 5px;
-      z-index: 10; /* Ensure message appears above other content */
+      z-index: 10; 
     }
 
     .articles-list table {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px; /* Add margin between table and other content */
+      margin-bottom: 20px; 
     }
 
     .articles-list th, .articles-list td {
-      border: 1px solid #ddd; /* Add border to table cells */
-      padding: 8px; /* Add padding to table cells */
+      border: 1px solid #ddd; 
+      padding: 8px; 
     }
 
     .articles-list th {
-      background-color: #f2f2f2; /* Light grey background for header */
+      background-color: #f2f2f2; 
     }
 
     .articles-list tbody tr:nth-child(even) {
-      background-color: #f9f9f9; /* Even rows have slightly darker background */
+      background-color: #f9f9f9; 
     }
 
     .articles-list tbody tr:hover {
-      background-color: #f2f2f2; /* Hover effect for rows */
+      background-color: #f2f2f2; 
     }
 
     .articles-list .article-status img {
-      width: 30px; /* Set the width of the icon */
-      height: auto; /* Maintain aspect ratio */
-      margin-right: 10px; /* Add space between icon and article name */
+      width: 30px; 
+      height: auto; 
+      margin-right: 10px; 
     }
 
     .articles-list .second-article {
-      align-self: flex-start; /* Align the second article to the left */
+      align-self: flex-start; 
     }
 
     .your-article {
@@ -121,15 +121,15 @@
     }
 
     .column-header {
-     margin-right: 20px; /* Add space between column headers */
-      font-weight: bold; /* Make column headers bold */
+     margin-right: 20px; 
+      font-weight: bold; 
     }
 
     .login-wrapper {
       border: 5px solid #ddd;
       padding: 50px;
       border-radius: 5px;
-      background-color: #f2f2f2; /* Set background color for the outer rectangle */
+      background-color: #f2f2f2; 
     }
   
   </style>
@@ -174,7 +174,7 @@
   {% if messages %}
     <script>
       const errorMessage = document.getElementById("error-message");
-      errorMessage.textContent = "{{ messages.0.1 }}"; // Assuming first message
+      errorMessage.textContent = "{{ messages.0.1 }}"; 
     </script>
   {% endif %}
 {% endwith %}

@@ -7,8 +7,7 @@ from flask_migrate import Migrate
 
 auth = Blueprint('auth', __name__)
 
-# Example function to add a user (simplified for illustration)
-def register_user(email, password, first_name, role='lecturer'):  # Add role parameter
+def register_user(email, password, first_name, role='lecturer'):  
     new_user = User(email=email, password=password, first_name=first_name, role=role)
     db.session.add(new_user)
     db.session.commit()
@@ -23,16 +22,15 @@ def login():
 
         user = User.query.filter_by(email=email).first()
         if user:
-            if user.password == password:  # In a real application, ensure password is securely hashed and checked
+            if user.password == password:  
                 flash('Logged in successfully!', category='success')
                 login_user(user, remember=True)
                 
-                # Check for user role instead of email
-                if user.role == "admin":  # Adjust the role string as necessary
+                if user.role == "admin":  
                     return redirect(url_for('views.home_admin'))
-                elif user.role == "lecturer":  # Adjust the role string as necessary
-                    return redirect(url_for('views.home_lecturer'))  # Redirect to lecturer page
-                else:  # Default redirection for other roles or if no role is set
+                elif user.role == "lecturer":  
+                    return redirect(url_for('views.home_lecturer'))  
+                else:  
                     return redirect(url_for('views.home'))
             else:
                 flash('Incorrect password, try again.', category='error')
@@ -71,6 +69,6 @@ def sign_up():
             db.session.add(new_user)
             db.session.commit()
             flash('Account created.', category='success')
-            return redirect(url_for('auth.login'))  # Redirect to login page
+            return redirect(url_for('auth.login'))  
 
     return render_template("sign_up.html", user=current_user)

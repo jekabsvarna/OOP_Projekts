@@ -65,7 +65,7 @@
   .student-selection-wrapper {
     margin: 10px auto;
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-wrap: nowrap; 
   }
 
   .student-list-container {
@@ -81,14 +81,13 @@
     border: 5px solid #ccc;
   }
 
-  /* Hide student row on selection */
   .all-students-list tr[data-selected="true"] {
     display: none;
   }
 
   #groups-container {
     display: flex;
-    flex-wrap: nowrap; /* Prevent wrapping */
+    flex-wrap: nowrap; 
     flex-grow: 1;
   }
 
@@ -122,13 +121,13 @@
     var selectedStudentsInput = workshopForm.querySelector('#selected-students');
     var groupsContainer = document.getElementById('groups-container');
     var addGroupsBtn = document.getElementById('add-groups-btn');
-    var autoAssignBtn = document.createElement('button'); // Button for auto-assign
+    var autoAssignBtn = document.createElement('button'); 
     var numGroupsInput = document.getElementById('num-groups');
   
     autoAssignBtn.textContent = "Auto Assign Students";
     autoAssignBtn.type = "button";
     autoAssignBtn.style.marginTop = "10px";
-    workshopForm.appendChild(autoAssignBtn); // Append auto-assign button to the form
+    workshopForm.appendChild(autoAssignBtn); 
   
     addGroupsBtn.addEventListener('click', function () {
       createEmptyGroups(parseInt(numGroupsInput.value));
@@ -139,7 +138,7 @@
     });
   
     function createEmptyGroups(numGroups) {
-      groupsContainer.innerHTML = ''; // Clear previous groups
+      groupsContainer.innerHTML = ''; 
       for (let i = 0; i < numGroups; i++) {
         var groupDiv = document.createElement('div');
         groupDiv.className = 'group-div';
@@ -194,9 +193,9 @@
       var row = group.insertRow();
       var cell = row.insertCell();
       cell.textContent = studentName;
-      row.dataset.id = studentId; // Important for identifying the student for removal
+      row.dataset.id = studentId; 
       addStudentId(studentId);
-      document.querySelector(`tr[data-id="${studentId}"]`).remove(); // Remove student from "No group" table
+      document.querySelector(`tr[data-id="${studentId}"]`).remove(); 
     }
   
     function removeStudentFromGroup(studentRow) {

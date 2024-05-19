@@ -1,10 +1,8 @@
 import sqlite3
 
-# Connect to the SQLite database
 conn = sqlite3.connect('database.db')
 cur = conn.cursor()
 
-# Create the user table
 try:
     cur.execute('''
     CREATE TABLE user (
@@ -19,7 +17,6 @@ try:
 except sqlite3.OperationalError:
     print('Database already exists.')
 
-# Create the workshop table
 try:
     cur.execute('''
     CREATE TABLE workshop (
@@ -34,7 +31,6 @@ try:
 except sqlite3.OperationalError as e:
     print(f'Error creating workshop table: {e}')
 
-# Create the enrollment table
 try:
     cur.execute('''
     CREATE TABLE enrollment (
@@ -50,13 +46,11 @@ except sqlite3.OperationalError:
     print('Enrollment table already exists.')
 
 
-# Admin user details
 admin_email = "admin@rtu.lv"
-admin_password = "secureadminpassword"  # Replace with a hashed password
+admin_password = "secureadminpassword"  
 admin_first_name = "Admin"
 admin_role = "admin"
 
-# Add the admin user to the database
 try:
     cur.execute("INSERT INTO user (email, password, first_name, role) VALUES (?, ?, ?, ?)",
                 (admin_email, admin_password, admin_first_name, admin_role))
@@ -64,7 +58,6 @@ try:
 except sqlite3.IntegrityError as e:
     print(f"Error adding admin user: {e}")
 
-# List of lecturer names (First name, Last name)
 lecturers = [
     ("Janis", "Berzins"),
     ("Peteris", "Ozolins"),
@@ -78,10 +71,8 @@ lecturers = [
     ("Edgars", "Rozitis")
 ]
 
-# Password for lecturers, for demonstration purposes. In a real application, ensure this is securely hashed.
 password = "securepassword"
 
-# Iterate over the lecturers list and insert each into the database
 for first_name, last_name in lecturers:
     email = f"{first_name.lower()}.{last_name.lower()}@rtu.lv"
     role = "lecturer"
@@ -92,7 +83,6 @@ for first_name, last_name in lecturers:
     except sqlite3.IntegrityError as e:
         print(f"Error adding {first_name} {last_name}: {e}")
 
-# Create the article table
 try:
     cur.execute('''
     CREATE TABLE article (
@@ -106,10 +96,8 @@ try:
 except sqlite3.OperationalError:
     print('Article table already exists.')
 
-# List of article names
 article_names = []
 
-# Insert article names into the database
 for name in article_names:
     try:
         cur.execute("INSERT INTO article (name) VALUES (?)", (name,))
@@ -117,7 +105,6 @@ for name in article_names:
     except sqlite3.IntegrityError as e:
         print(f"Error adding article: {e}")
 
-# Commit changes and close the connection
 conn.commit()
 conn.close()
 

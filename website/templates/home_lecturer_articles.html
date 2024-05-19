@@ -6,10 +6,9 @@
 
 <style>
 
-    /* Style for delete button */
     .delete-button {
         background-color: rgb(102, 102, 102); 
-        color: #ffffff; /* White text */
+        color: #ffffff; 
         border: none;
         padding: 5px 10px;
         text-align: center;
@@ -29,17 +28,16 @@
     }
 
     .upload-container, .delete-container {
-    width: 48%; /* Adjust width as needed */
+    width: 48%; 
     }
 
     .upload-container h2 {
     margin: 4;
     }
 
-/* Style for delete all button */
     .delete-all-button {
     background-color: rgb(102, 102, 102);
-    color: #ffffff; /* White text */
+    color: #ffffff; 
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -50,10 +48,9 @@
     border-radius: 4px;
     }
 
-    /* Style for import button */
     .upload-container button {
     background-color: rgb(102, 102, 102);
-    color: #ffffff; /* White text */
+    color: #ffffff; 
     border: none;
     padding: 10px 20px;
     text-align: center;
@@ -62,7 +59,7 @@
     font-size: 16px;
     cursor: pointer;
     border-radius: 4px;
-    margin-top: 10px; /* Adjust margin as needed */
+    margin-top: 10px; 
     }
 </style>
 
@@ -77,14 +74,12 @@
     <div class="delete-container">
         <button class="delete-all-button" onclick="deleteAllArticles()">Delete All Articles</button>
     </div>
-    <!-- Add article (singular) button -->
     <a href="{{ url_for('views.add_article') }}" class="delete-all-button">Add Article</a>
 
 
 </div>
 
 <h2>Articles</h2>
-<!-- Dropdown for selecting number of articles -->
 <form method="GET">
     <label for="num_articles">Articles per page:</label>
     <select name="num_articles" id="num_articles" onchange="this.form.submit()">
@@ -129,7 +124,6 @@
     </table>
 </div>
 
-<!-- Pagination Links -->
 <div class="pagination">
     {% if prev_url %}
     <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
@@ -168,7 +162,6 @@
             })
             .then(response => {
                 if (response.ok) {
-                    // Reload the page after deletion
                     location.reload();
                 } else {
                     alert("Failed to delete all articles.");
@@ -187,7 +180,6 @@
         })
         .then(response => {
             if (response.ok) {
-                // Remove the row from the table
                 document.getElementById(`article-${articleId}`).remove();
             } else {
                 alert("Failed to delete the article.");

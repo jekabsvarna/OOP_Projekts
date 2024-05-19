@@ -7,29 +7,28 @@
     .lecturers-list table {
     width: 100%;
     border-collapse: collapse;
-    margin-bottom: 20px; /* Add margin between table and other content */
+    margin-bottom: 20px; 
     }
 
     .lecturers-list th, .lecturers-list td {
-    border: 1px solid #ddd; /* Add border to table cells */
-    padding: 8px; /* Add padding to table cells */
+    border: 1px solid #ddd; 
+    padding: 8px; 
     }
 
     .lecturers-list th {
-    background-color: #f2f2f2; /* Light grey background for header */
+    background-color: #f2f2f2; 
     }
 
     .lecturers-list tbody tr:nth-child(even) {
-    background-color: #f9f9f9; /* Even rows have slightly darker background */
+    background-color: #f9f9f9; 
     }
 
     .add-lecturer-btn {
-        margin-top: 20px; /* Adds space above the Add Lecturer button */
+        margin-top: 20px; 
         margin-left: -1260px; 
     }
 </style>
 
-<!-- Add Lecturer Button -->
 <a href="{{ url_for('views.add_lecturer') }}" class="btn btn-primary add-lecturer-btn">Add Lecturer</a>
 
 
@@ -45,7 +44,6 @@
     </form>
 </div>
 
-<!-- Lecturers List -->
 <div class="lecturers-list">
     <h2>Lecturers</h2>
     <table>
@@ -72,7 +70,6 @@
     </table>
 </div>
 
-<!-- Pagination Links -->
 <div class="pagination">
     {% if prev_url %}
     <a href="{{ prev_url }}" class="btn btn-primary">&laquo; Previous Page</a>
